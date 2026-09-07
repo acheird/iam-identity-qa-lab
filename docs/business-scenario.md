@@ -64,8 +64,15 @@ Example:
 ```
 Nikos                          Maria
 ├── department-it              ├── department-hr
-└── manager                    └── employee
+├── employee                   └── employee
+└── manager
 ```
+
+Note: a Manager always holds `employee` **and** `manager` — `manager` is
+additive, never a replacement for the baseline `employee` role. This
+matches REQ-004/REQ-005 and matters directly for REQ-009 (a role change
+from Employee → Manager adds `manager` without removing `employee`; the
+reverse removes `manager` while keeping `employee`).
 
 ## Business Objective
 
