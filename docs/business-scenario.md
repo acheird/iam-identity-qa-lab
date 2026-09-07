@@ -74,6 +74,10 @@ matches REQ-004/REQ-005 and matters directly for REQ-009 (a role change
 from Employee → Manager adds `manager` without removing `employee`; the
 reverse removes `manager` while keeping `employee`).
 
+> For the rationale behind modeling department and role as independent
+> dimensions (rather than combined roles), see `architecture.md` —
+> Architectural Decisions.
+
 ## Business Objective
 
 Automate and verify employee identity lifecycle management so that each
