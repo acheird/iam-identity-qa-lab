@@ -47,6 +47,11 @@ department changes and role changes remain independently traceable
   and clients for Acme Technologies live in this single realm. No
   cross-realm concerns for this project's scope.
 
+**Implementation environment:** Keycloak `26.7.3`, run via Docker
+(`quay.io/keycloak/keycloak:26.7.3`, `start-dev` mode), version pinned
+explicitly (not `:latest`) so that REQ-012 verification results can
+always be tied to a specific, reproducible Keycloak version.
+
 ## 3. Clients
 
 | Client      | Type                        | Purpose                                                             |
