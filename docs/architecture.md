@@ -269,6 +269,26 @@ not composite/hierarchical roles.**
   administrative-overhead benefit of composites doesn't outweigh the
   testability cost.
 
+**Decision 4 — JML provisioning scripts authenticate to the Keycloak
+Admin REST API via a dedicated service account client
+(`acme-provisioner`), never a personal administrator account.**
+
+- *Reason:* least privilege applies to automation and integration
+  accounts, not only end users (the same principle behind REQ-017).
+  Automation should not depend on, or require, a personal
+  administrator identity, and should hold only the specific
+  administrative permissions it needs — the same role a connector
+  account plays against a target system in a real IGA deployment
+  (e.g. OIM).
+- *Trade-off:* more setup than reusing an existing admin account;
+  requires deliberately scoping the service account's permissions
+  rather than granting broad access by default.
+- *Secret handling:* the client secret is never committed to the
+  repository. Locally it is read from an environment variable
+  (`KEYCLOAK_CLIENT_SECRET`); in CI (GitHub Actions, once built) it
+  will come from GitHub Actions Secrets. Credentials are
+  configuration/secrets, not source code.
+
 ## Known Limitations
 
 - **Test identities are not part of the exported configuration.**
