@@ -282,6 +282,20 @@ not composite/hierarchical roles.**
   provision them programmatically is a decision deferred to the
   automation phase, not solved here.
 
+- **Direct Access Grants (ROPC) are enabled on `acme-web` solely for
+  testing convenience via Postman, avoiding the need to build a
+  browser-based frontend for this lab.** ROPC is discouraged in modern
+  OAuth 2.0 practice and is not included in OAuth 2.1, because it
+  requires the client to handle the user's credentials directly and
+  prevents the authorization server from providing some of the
+  protections available through browser-based authorization flows. It
+  also has important limitations around MFA and external
+  identity-provider scenarios. This configuration is acceptable for
+  the controlled lab environment and should not be considered a
+  production recommendation. A hardened deployment would use an
+  appropriate Authorization Code-based flow and disable Direct Access
+  Grants.
+
 - **CSV as the HR source** is a deliberate simplification for lab
   scope. It has no producer authentication, no integrity check, no
   audit trail, and is inherently batch rather than event-driven. A
