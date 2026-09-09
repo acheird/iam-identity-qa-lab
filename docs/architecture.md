@@ -112,6 +112,17 @@ expiry-based testing introduces timing dependencies (tests would need
 to wait out a TTL window) and only proves a *bounded* exposure window,
 not immediate revocation.
 
+**Implementation note (found during setup verification):** Keycloak
+does not include group membership in tokens or introspection
+responses by default — only realm roles are included automatically.
+A dedicated `groups` client scope with a "Group Membership" mapper
+(`Full group path` off, added to access token, ID token, userinfo,
+**and token introspection**) must be created and attached as a
+**default** scope to both `acme-web` and `acme-api`. Without the
+introspection toggle specifically enabled on this mapper, `acme-api`
+would never see group membership at all, since it never reads tokens
+locally.
+
 ## 7. `acme-api` as Protected Resource
 
 A small API is sufficient — it does not need to be a real backend, only
@@ -243,7 +254,33 @@ Group × business Role), not combined roles** (e.g. `it-manager`,
 **Decision 2 — `acme-api` uses token introspection, not offline JWT
 validation.** See Section 6 for the full Decision/Reason/Trade-off.
 
+**Decision 3 — Explicit dual role assignment (`employee` + `manager`),
+not composite/hierarchical roles.**
+
+- *Reason:* keeps REQ-009 role downgrade unambiguous — an explicitly
+  assigned `employee` role survives removal of `manager`, whereas an
+  implied (composite-inherited) role would disappear along with it.
+- *Trade-off:* more explicit assignments needed per user compared to a
+  composite hierarchy; does not scale as gracefully to many role
+  levels.
+- *Alternative considered:* composite roles — the same pattern OIM
+  uses for hierarchical Business Roles. Rejected here specifically
+  because the project has only two levels, so the
+  administrative-overhead benefit of composites doesn't outweigh the
+  testability cost.
+
 ## Known Limitations
+
+- **Test identities are not part of the exported configuration.**
+  `realm-export.json` captures the reproducible IAM configuration
+  (realm, groups, roles, clients) via Keycloak's partial export, which
+  does not include users. The four test identities (Maria, Nikos,
+  Giorgos, Eleni) are created manually for verification purposes and
+  are not treated as persistent infrastructure — no credentials or
+  test-user data are stored in the repository. On a fresh environment,
+  test identities are recreated manually as needed. Whether to
+  provision them programmatically is a decision deferred to the
+  automation phase, not solved here.
 
 - **CSV as the HR source** is a deliberate simplification for lab
   scope. It has no producer authentication, no integrity check, no
