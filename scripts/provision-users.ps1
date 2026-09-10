@@ -1,9 +1,8 @@
 # provision-users.ps1
 # Joiner script (REQ-007). Building this incrementally.
-# This version: read employees.csv, authenticate as acme-provisioner,
-# and check whether each employee already exists in Keycloak -
-# authoritatively, by EmployeeID (REQ-002), not by name/username.
-# Still no create/update logic yet.
+# This version: find existing employees by EmployeeID, and CREATE any
+# that don't exist yet. Group/role assignment still not implemented -
+# next step.
 
 . "$PSScriptRoot\KeycloakAuth.ps1"
 . "$PSScriptRoot\KeycloakUsers.ps1"
@@ -28,6 +27,16 @@ foreach ($employee in $employees) {
         Write-Host "  $($employee.EmployeeID) ($username): FOUND in Keycloak (id: $($existingUser.id))" -ForegroundColor Yellow
     }
     else {
-        Write-Host "  $($employee.EmployeeID) ($username): NOT FOUND in Keycloak" -ForegroundColor Green
+        Write-Host "  $($employee.EmployeeID) ($username): NOT FOUND - creating..." -ForegroundColor Green
+
+        $newUserId = New-KeycloakUser `
+            -Username $username `
+            -FirstName $employee.FirstName `
+            -LastName $employee.LastName `
+            -Email $employee.Email `
+            -EmployeeId $employee.EmployeeID `
+            -AccessToken $accessToken
+
+        Write-Host "  $($employee.EmployeeID) ($username): CREATED (id: $newUserId)" -ForegroundColor Cyan
     }
 }

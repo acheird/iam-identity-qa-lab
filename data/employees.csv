@@ -1,6 +1,6 @@
-EmployeeID,FirstName,LastName,Department,Role,Status
-E001,Maria,Papadopoulou,HR,Employee,Active
-E002,Nikos,Georgiou,IT,Manager,Active
-E003,Giorgos,Antoniou,Finance,Employee,Active
-E004,Eleni,Nikolaou,Sales,Employee,Active
-E005,Alex,Smith,IT,Employee,Active
+EmployeeID,FirstName,LastName,Department,Role,Status,Email
+E001,Maria,Papadopoulou,HR,Employee,Active,maria@email.com
+E002,Nikos,Georgiou,IT,Manager,Active,nikos@email.com
+E003,Giorgos,Antoniou,Finance,Employee,Active,giorgos@email.com
+E004,Eleni,Nikolaou,Sales,Employee,Active,eleni@email.com
+E005,Alex,Smith,IT,Employee,Active,alex@email.com
