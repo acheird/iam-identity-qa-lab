@@ -162,6 +162,20 @@ Admin roles (`hr-admin`, `it-admin`) are **not** touched by any of
 these scripts (REQ-006) — they are out of scope for HR-feed-driven
 automation entirely.
 
+**Operations matrix** (what each script actually does, and how it is
+enforced at the Keycloak permission level):
+
+| Operation | Joiner | Mover | Leaver | Keycloak enforcement |
+|---|---|---|---|---|
+| Find user | ✓ | ✓ | ✓ | `manage-users` |
+| Read user | ✓ | ✓ | ✓ | `manage-users` |
+| Create user | ✓ | — | — | `manage-users` |
+| Update user | — | ✓ | ✓ | `manage-users` |
+| Add/remove groups | ✓ | ✓ | — | `manage-users` |
+| Add/remove roles | ✓ | ✓ | — | `manage-users` |
+| Disable account | — | — | ✓ | `manage-users` |
+| Delete user | ❌ | ❌ | ❌ | *not enforceable with a built-in role — see Decision 5* |
+
 ## 9. Joiner / Mover / Leaver Flows
 
 ```
@@ -288,6 +302,31 @@ Admin REST API via a dedicated service account client
   (`KEYCLOAK_CLIENT_SECRET`); in CI (GitHub Actions, once built) it
   will come from GitHub Actions Secrets. Credentials are
   configuration/secrets, not source code.
+
+**Decision 5 — `acme-provisioner` is granted the built-in
+`realm-management` role `manage-users`, accepted as least privilege
+*within the constraints of Keycloak's built-in administrative roles*,
+not true operation-level least privilege.**
+
+- *Reason:* Keycloak's default `realm-management` roles are
+  coarse-grained — there is no built-in role that grants create/update
+  user rights without also granting delete. `manage-users` is the
+  minimal built-in role that covers every operation the provisioning
+  scripts actually need (find/read user, create/update user,
+  group/role mapping, disable account — see the operations matrix in
+  Section 8).
+- *Trade-off / residual risk:* the service account technically has
+  delete-user capability it will never use, since the Leaver
+  requirement (REQ-010) is deactivation, not identity deletion. This
+  is enforced by code discipline — no script calls the delete
+  endpoint — rather than by the Keycloak permission model itself. This
+  is a real, explicitly acknowledged gap relative to true least
+  privilege, not a silent omission.
+- *Alternative considered:* Keycloak's Fine-Grained Admin Permissions,
+  which would allow excluding delete explicitly at the permission
+  level. Rejected for this lab: it would add meaningful IAM
+  configuration complexity without a proportionate benefit at this
+  project's scope.
 
 ## Known Limitations
 
