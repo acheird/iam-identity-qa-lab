@@ -129,6 +129,15 @@ introspection toggle specifically enabled on this mapper, `acme-api`
 would never see group membership at all, since it never reads tokens
 locally.
 
+**Configuration note — declarative User Profile (Keycloak 26.x):**
+custom user attributes (e.g. `employeeId`, used to anchor REQ-002
+uniqueness — see Section 8) are **not** freely settable key-value
+pairs. Keycloak 26's declarative User Profile requires an attribute to
+be explicitly declared under Realm settings → User profile before it
+can be set on any user, via either the Admin Console or the Admin REST
+API. `employeeId` is declared with Admin-only view/edit permissions
+(end users cannot edit their own employee ID).
+
 ## 7. `acme-api` as Protected Resource
 
 A small API is sufficient — it does not need to be a real backend, only
@@ -157,7 +166,10 @@ PowerShell scripts, run against `employees.csv`, authenticating as
 
 - `provision-users.ps1` — Joiner. Reads new `Active` records, creates
   identities, calls `Set-DepartmentMembership` and
-  `Set-RoleMembership`.
+  `Set-RoleMembership`. Identity uniqueness (REQ-002) is anchored to
+  the `employeeId` custom user attribute, not to username or name —
+  two employees could share a first name. Username is a
+  human-readable login identifier only.
 - `update-users.ps1` — Mover. Diffs current Keycloak state against the
   HR feed per employee; calls `Set-DepartmentMembership` and/or
   `Set-RoleMembership` independently, only for the dimension(s) that
