@@ -4,6 +4,21 @@ This document describes **how** the requirements in `requirements.md` are
 implemented. It does not restate the business scenario or requirements —
 see `business-scenario.md` and `requirements.md` for the WHAT.
 
+Architectural decisions with real trade-offs (why we chose X over Y)
+live as individual Architecture Decision Records in
+[`decisions/`](decisions/), not inline in this document. This file
+describes the resulting design and links to the relevant ADR wherever
+a design choice needs justification.
+
+| ADR | Decision |
+|---|---|
+| [0001](decisions/0001-orthogonal-group-role-model.md) | Independent Group/Role model, not combined roles |
+| [0002](decisions/0002-token-introspection.md) | `acme-api` uses token introspection, not offline JWT |
+| [0003](decisions/0003-explicit-dual-role-assignment.md) | Explicit dual role assignment, not composite roles |
+| [0004](decisions/0004-dedicated-service-account.md) | Dedicated service account for automation |
+| [0005](decisions/0005-manage-users-coarse-grained-permission.md) | `manage-users` accepted as coarse-grained least privilege |
+| [0006](decisions/0006-ropc-for-testing-convenience.md) | ROPC enabled on `acme-web` for testing only |
+
 ## 1. Architecture Overview
 
 ```
@@ -38,7 +53,7 @@ see `business-scenario.md` and `requirements.md` for the WHAT.
 Two provisioning functions (`Set-DepartmentMembership`,
 `Set-RoleMembership`) instead of one combined function, so that
 department changes and role changes remain independently traceable
-(REQ-008, REQ-009).
+(REQ-008, REQ-009) — see [ADR-0001](decisions/0001-orthogonal-group-role-model.md).
 
 ## 2. Keycloak Realm
 
@@ -54,13 +69,15 @@ always be tied to a specific, reproducible Keycloak version.
 
 ## 3. Clients
 
-| Client      | Type                        | Purpose                                                             |
-|-------------|-----------------------------|-----------------------------------------------------------------------|
-| `acme-web`  | Public, authorization code  | Demonstrates interactive human login (browser), issues tokens to test with. |
-| `acme-api`  | Confidential                | The protected resource. Validates every request via token introspection against Keycloak. Requires a client secret. |
+| Client              | Type          | Purpose                                                                 |
+|----------------------|---------------|---------------------------------------------------------------------------|
+| `acme-web`          | Public        | Interactive human login (browser). Direct Access Grants also enabled for testing — see [ADR-0006](decisions/0006-ropc-for-testing-convenience.md). |
+| `acme-api`          | Confidential  | The protected resource. Validates every request via token introspection — see [ADR-0002](decisions/0002-token-introspection.md). |
+| `acme-provisioner`  | Confidential  | Service account used by the JML PowerShell scripts to call the Admin REST API — see [ADR-0004](decisions/0004-dedicated-service-account.md) and [ADR-0005](decisions/0005-manage-users-coarse-grained-permission.md). |
 
-`acme-api` must be confidential (not public) because token introspection
-(RFC 7662) requires the calling client to authenticate itself to
+`acme-api` and `acme-provisioner` must be confidential (not public)
+because token introspection (RFC 7662) and the Client Credentials
+grant both require the calling client to authenticate itself to
 Keycloak — see Section 12 (Secrets).
 
 ## 4. Groups (Departments)
@@ -78,14 +95,16 @@ groups assigned simultaneously.
 | Role       | Assigned by          | Notes                                                        |
 |------------|-----------------------|----------------------------------------------------------------|
 | `employee` | HR feed (automated)  | Baseline — every active employee holds this (REQ-004).        |
-| `manager`  | HR feed (automated)  | **Additive** to `employee`, never a replacement (REQ-005).    |
+| `manager`  | HR feed (automated)  | **Additive** to `employee`, never a replacement (REQ-005). See [ADR-0003](decisions/0003-explicit-dual-role-assignment.md). |
 | `hr-admin` | IAM Administrator only | Never HR-feed-driven (REQ-006).                              |
 | `it-admin` | IAM Administrator only | Never HR-feed-driven (REQ-006).                              |
 
 ## 6. Authentication & Token Model
 
-**Decision:** `acme-api` validates every request via Keycloak token
-introspection, rather than local (offline) JWT signature validation.
+`acme-api` validates every request via Keycloak token introspection
+rather than local (offline) JWT signature validation — see
+[ADR-0002](decisions/0002-token-introspection.md) for the full
+rationale and trade-off.
 
 ```
 Client
@@ -99,20 +118,7 @@ Keycloak
   └── active = false → 401
 ```
 
-**Reason:** the project prioritizes deterministic, repeatable testing of
-immediate post-termination access behavior over production-scale
-performance.
-
-**Trade-off:** an extra network call on every protected request,
-compared with local JWT validation.
-
-**Alternative considered:** short-lived access tokens (e.g. 30–60s)
-with offline JWT validation. Rejected for this lab because
-expiry-based testing introduces timing dependencies (tests would need
-to wait out a TTL window) and only proves a *bounded* exposure window,
-not immediate revocation.
-
-**Implementation note (found during setup verification):** Keycloak
+**Configuration note (found during setup verification):** Keycloak
 does not include group membership in tokens or introspection
 responses by default — only realm roles are included automatically.
 A dedicated `groups` client scope with a "Group Membership" mapper
@@ -146,7 +152,8 @@ specific test isolated from group/role authorization concerns.
 
 ## 8. JML Provisioning Architecture
 
-PowerShell scripts, run against `employees.csv`:
+PowerShell scripts, run against `employees.csv`, authenticating as
+`acme-provisioner` ([ADR-0004](decisions/0004-dedicated-service-account.md)):
 
 - `provision-users.ps1` — Joiner. Reads new `Active` records, creates
   identities, calls `Set-DepartmentMembership` and
@@ -163,7 +170,8 @@ these scripts (REQ-006) — they are out of scope for HR-feed-driven
 automation entirely.
 
 **Operations matrix** (what each script actually does, and how it is
-enforced at the Keycloak permission level):
+enforced at the Keycloak permission level — see
+[ADR-0005](decisions/0005-manage-users-coarse-grained-permission.md)):
 
 | Operation | Joiner | Mover | Leaver | Keycloak enforcement |
 |---|---|---|---|---|
@@ -174,7 +182,7 @@ enforced at the Keycloak permission level):
 | Add/remove groups | ✓ | ✓ | — | `manage-users` |
 | Add/remove roles | ✓ | ✓ | — | `manage-users` |
 | Disable account | — | — | ✓ | `manage-users` |
-| Delete user | ❌ | ❌ | ❌ | *not enforceable with a built-in role — see Decision 5* |
+| Delete user | ❌ | ❌ | ❌ | *not enforceable with a built-in role — see ADR-0005* |
 
 ## 9. Joiner / Mover / Leaver Flows
 
@@ -228,12 +236,11 @@ Never committed to the repository (`.gitignore` already excludes
 `.env` / `*.env`):
 
 - `acme-api` client secret (needed for introspection calls)
-- Keycloak admin credentials used by the PowerShell provisioning
-  scripts
+- `acme-provisioner` client secret (needed for the Admin REST API)
+- Keycloak admin credentials used for initial bootstrap
 
-A `.env.example` (committed, with placeholder values only) should be
-added once implementation starts, so the required variables are
-documented without exposing real values.
+`.env.example` (committed, with placeholder values only) documents the
+required variables without exposing real values.
 
 ## 13. Traceability — Requirements → Architecture Components
 
@@ -250,85 +257,7 @@ documented without exposing real values.
 | REQ-013–REQ-016 | `acme-api` authorization mapping (Sections 7, 11) |
 | REQ-017 | Cross-cutting — verified by regression across Mover/Leaver test suites |
 
-## 14. Architectural Decisions & Trade-offs
-
-**Decision 1 — Model access as two independent dimensions (department
-Group × business Role), not combined roles** (e.g. `it-manager`,
-`finance-employee`).
-
-- *Reason:* keeps department changes and role changes independently
-  traceable and testable (REQ-008/REQ-009); scales additively
-  (N departments + M levels) rather than multiplicatively (N×M roles)
-  as the organization grows.
-- *Trade-off:* authorization logic must combine two dimensions at
-  evaluation time, rather than reading one self-explanatory role name.
-- *Alternative considered:* combined per-department-per-level roles.
-  Rejected due to role explosion at scale.
-
-**Decision 2 — `acme-api` uses token introspection, not offline JWT
-validation.** See Section 6 for the full Decision/Reason/Trade-off.
-
-**Decision 3 — Explicit dual role assignment (`employee` + `manager`),
-not composite/hierarchical roles.**
-
-- *Reason:* keeps REQ-009 role downgrade unambiguous — an explicitly
-  assigned `employee` role survives removal of `manager`, whereas an
-  implied (composite-inherited) role would disappear along with it.
-- *Trade-off:* more explicit assignments needed per user compared to a
-  composite hierarchy; does not scale as gracefully to many role
-  levels.
-- *Alternative considered:* composite roles — the same pattern OIM
-  uses for hierarchical Business Roles. Rejected here specifically
-  because the project has only two levels, so the
-  administrative-overhead benefit of composites doesn't outweigh the
-  testability cost.
-
-**Decision 4 — JML provisioning scripts authenticate to the Keycloak
-Admin REST API via a dedicated service account client
-(`acme-provisioner`), never a personal administrator account.**
-
-- *Reason:* least privilege applies to automation and integration
-  accounts, not only end users (the same principle behind REQ-017).
-  Automation should not depend on, or require, a personal
-  administrator identity, and should hold only the specific
-  administrative permissions it needs — the same role a connector
-  account plays against a target system in a real IGA deployment
-  (e.g. OIM).
-- *Trade-off:* more setup than reusing an existing admin account;
-  requires deliberately scoping the service account's permissions
-  rather than granting broad access by default.
-- *Secret handling:* the client secret is never committed to the
-  repository. Locally it is read from an environment variable
-  (`KEYCLOAK_CLIENT_SECRET`); in CI (GitHub Actions, once built) it
-  will come from GitHub Actions Secrets. Credentials are
-  configuration/secrets, not source code.
-
-**Decision 5 — `acme-provisioner` is granted the built-in
-`realm-management` role `manage-users`, accepted as least privilege
-*within the constraints of Keycloak's built-in administrative roles*,
-not true operation-level least privilege.**
-
-- *Reason:* Keycloak's default `realm-management` roles are
-  coarse-grained — there is no built-in role that grants create/update
-  user rights without also granting delete. `manage-users` is the
-  minimal built-in role that covers every operation the provisioning
-  scripts actually need (find/read user, create/update user,
-  group/role mapping, disable account — see the operations matrix in
-  Section 8).
-- *Trade-off / residual risk:* the service account technically has
-  delete-user capability it will never use, since the Leaver
-  requirement (REQ-010) is deactivation, not identity deletion. This
-  is enforced by code discipline — no script calls the delete
-  endpoint — rather than by the Keycloak permission model itself. This
-  is a real, explicitly acknowledged gap relative to true least
-  privilege, not a silent omission.
-- *Alternative considered:* Keycloak's Fine-Grained Admin Permissions,
-  which would allow excluding delete explicitly at the permission
-  level. Rejected for this lab: it would add meaningful IAM
-  configuration complexity without a proportionate benefit at this
-  project's scope.
-
-## Known Limitations
+## Known Limitations / Scope Notes
 
 - **Test identities are not part of the exported configuration.**
   `realm-export.json` captures the reproducible IAM configuration
@@ -340,20 +269,6 @@ not true operation-level least privilege.**
   test identities are recreated manually as needed. Whether to
   provision them programmatically is a decision deferred to the
   automation phase, not solved here.
-
-- **Direct Access Grants (ROPC) are enabled on `acme-web` solely for
-  testing convenience via Postman, avoiding the need to build a
-  browser-based frontend for this lab.** ROPC is discouraged in modern
-  OAuth 2.0 practice and is not included in OAuth 2.1, because it
-  requires the client to handle the user's credentials directly and
-  prevents the authorization server from providing some of the
-  protections available through browser-based authorization flows. It
-  also has important limitations around MFA and external
-  identity-provider scenarios. This configuration is acceptable for
-  the controlled lab environment and should not be considered a
-  production recommendation. A hardened deployment would use an
-  appropriate Authorization Code-based flow and disable Direct Access
-  Grants.
 
 - **CSV as the HR source** is a deliberate simplification for lab
   scope. It has no producer authentication, no integrity check, no
