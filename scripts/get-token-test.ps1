@@ -1,26 +1,15 @@
 # get-token-test.ps1
-# Minimal script to confirm the acme-provisioner service account can
-# authenticate against Keycloak. No provisioning logic yet — this is
-# the connection layer only, verified on its own before anything else
-# is built on top of it.
+# Connectivity check only: confirms the acme-provisioner service
+# account can authenticate against Keycloak. Contains no provisioning
+# logic itself - reuses the shared Get-KeycloakToken function from
+# KeycloakAuth.ps1, the same function every Joiner/Mover/Leaver script
+# will use. Safe to re-run any time you want to verify the connection
+# layer independently of the rest of the project.
 
-# Load .env into environment variables for this session
-Get-Content .env | ForEach-Object {
-    if ($_ -match '^\s*([^#][^=]*)=(.*)$') {
-        [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim())
-    }
-}
-
-$tokenUrl = "$($env:KEYCLOAK_BASE_URL)/realms/$($env:KEYCLOAK_REALM)/protocol/openid-connect/token"
-
-$body = @{
-    grant_type    = "client_credentials"
-    client_id     = $env:KEYCLOAK_CLIENT_ID
-    client_secret = $env:KEYCLOAK_CLIENT_SECRET
-}
+. "$PSScriptRoot\KeycloakAuth.ps1"
 
 try {
-    $response = Invoke-RestMethod -Uri $tokenUrl -Method Post -Body $body -ContentType "application/x-www-form-urlencoded"
+    $response = Get-KeycloakToken
     Write-Host "Token acquired successfully." -ForegroundColor Green
     Write-Host "Token type: $($response.token_type)"
     Write-Host "Expires in: $($response.expires_in) seconds"
