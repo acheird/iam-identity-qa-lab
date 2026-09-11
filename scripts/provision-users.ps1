@@ -1,8 +1,10 @@
 # provision-users.ps1
-# Joiner script (REQ-007). Building this incrementally.
-# This version: find existing employees by EmployeeID, and CREATE any
-# that don't exist yet. Group/role assignment still not implemented -
-# next step.
+# Joiner script (REQ-007).
+# This version: find existing employees by EmployeeID, create any
+# that don't exist yet, and assign their department group and realm
+# roles. Mover/reconciliation logic (ensuring an already-existing
+# identity still matches the CSV) is not implemented here — that is
+# update-users.ps1's job.
 
 . "$PSScriptRoot\KeycloakAuth.ps1"
 . "$PSScriptRoot\KeycloakUsers.ps1"
@@ -43,7 +45,7 @@ foreach ($employee in $employees) {
         Set-DepartmentMembership -UserId $newUserId -Department $employee.Department -AccessToken $accessToken
         Write-Host "  $($employee.EmployeeID) ($username): added to department-$($employee.Department.ToLower())" -ForegroundColor Cyan
 
-        Set-RoleMembership -UserId $newUserId -Role $employee.Role -AccessToken $accessToken
-        Write-Host "  $($employee.EmployeeID) ($username): role(s) assigned (employee$(if ($employee.Role -eq 'Manager') { ' + manager' }))" -ForegroundColor Cyan
+        $assignedRoles = Set-RoleMembership -UserId $newUserId -Role $employee.Role -AccessToken $accessToken
+        Write-Host "  $($employee.EmployeeID) ($username): role(s) assigned ($($assignedRoles -join ', '))" -ForegroundColor Cyan
     }
 }

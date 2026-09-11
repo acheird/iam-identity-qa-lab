@@ -90,6 +90,12 @@ function Set-RoleMembership {
 
     try {
         Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body | Out-Null
+        # Return the role names that were actually sent, so callers
+        # report what really happened instead of re-deriving the same
+        # Manager/employee condition independently (which could drift
+        # out of sync with this function, or silently be wrong if this
+        # call had partially failed).
+        return $roleNames
     }
     catch {
         throw "Failed to assign roles to user '$UserId': $($_.Exception.Message)"

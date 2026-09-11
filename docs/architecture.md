@@ -169,7 +169,10 @@ PowerShell scripts, run against `employees.csv`, authenticating as
   `Set-RoleMembership`. Identity uniqueness (REQ-002) is anchored to
   the `employeeId` custom user attribute, not to username or name —
   two employees could share a first name. Username is a
-  human-readable login identifier only.
+  human-readable login identifier only. An employee already found in
+  Keycloak is left untouched by this script — reconciling an
+  existing identity against the current CSV state is Mover's job
+  (`update-users.ps1`), not the Joiner's.
 - `update-users.ps1` — Mover. Diffs current Keycloak state against the
   HR feed per employee; calls `Set-DepartmentMembership` and/or
   `Set-RoleMembership` independently, only for the dimension(s) that
