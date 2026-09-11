@@ -147,6 +147,34 @@ function Set-RoleMembership {
     }
 }
 
+function Remove-DepartmentMembership {
+    # Removes the user from a specific group, by group ID. The caller
+    # (Mover diff logic) already knows the current group's ID from
+    # Get-KeycloakUserGroups, so no name lookup is needed here —
+    # unlike Set-DepartmentMembership, which only knows the target
+    # department NAME from the CSV and must resolve it to an ID.
+    param(
+        [Parameter(Mandatory)]
+        [string]$UserId,
+
+        [Parameter(Mandatory)]
+        [string]$GroupId,
+
+        [Parameter(Mandatory)]
+        [string]$AccessToken
+    )
+
+    $uri = "$($env:KEYCLOAK_BASE_URL)/admin/realms/$($env:KEYCLOAK_REALM)/users/$UserId/groups/$GroupId"
+    $headers = @{ Authorization = "Bearer $AccessToken" }
+
+    try {
+        Invoke-RestMethod -Uri $uri -Method Delete -Headers $headers | Out-Null
+    }
+    catch {
+        throw "Failed to remove user '$UserId' from group '$GroupId': $($_.Exception.Message)"
+    }
+}
+
 function Set-DepartmentMembership {
     # Adds the user to the department group matching their CSV
     # Department field (e.g. "IT" -> "department-it"). This does NOT
