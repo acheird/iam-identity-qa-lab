@@ -42,5 +42,8 @@ foreach ($employee in $employees) {
 
         Set-DepartmentMembership -UserId $newUserId -Department $employee.Department -AccessToken $accessToken
         Write-Host "  $($employee.EmployeeID) ($username): added to department-$($employee.Department.ToLower())" -ForegroundColor Cyan
+
+        Set-RoleMembership -UserId $newUserId -Role $employee.Role -AccessToken $accessToken
+        Write-Host "  $($employee.EmployeeID) ($username): role(s) assigned (employee$(if ($employee.Role -eq 'Manager') { ' + manager' }))" -ForegroundColor Cyan
     }
 }

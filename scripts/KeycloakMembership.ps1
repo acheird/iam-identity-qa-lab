@@ -28,6 +28,74 @@ function Get-KeycloakGroupByName {
     }
 }
 
+function Get-KeycloakRealmRole {
+    # Fetches the full role representation object for a realm role by
+    # name. Needed because Keycloak's role-mappings endpoint expects
+    # complete role objects, not plain role-name strings.
+    param(
+        [Parameter(Mandatory)]
+        [string]$RoleName,
+
+        [Parameter(Mandatory)]
+        [string]$AccessToken
+    )
+
+    $uri = "$($env:KEYCLOAK_BASE_URL)/admin/realms/$($env:KEYCLOAK_REALM)/roles/$RoleName"
+    $headers = @{ Authorization = "Bearer $AccessToken" }
+
+    try {
+        return Invoke-RestMethod -Uri $uri -Method Get -Headers $headers
+    }
+    catch {
+        throw "Failed to look up role '$RoleName': $($_.Exception.Message)"
+    }
+}
+
+function Set-RoleMembership {
+    # Assigns realm roles to the user. Always includes 'employee'
+    # (REQ-004, baseline). Adds 'manager' additionally, never as a
+    # replacement, if the CSV Role field is "Manager" — explicit dual
+    # assignment per ADR-0003, not a composite/implicit role.
+    param(
+        [Parameter(Mandatory)]
+        [string]$UserId,
+
+        [Parameter(Mandatory)]
+        [string]$Role,
+
+        [Parameter(Mandatory)]
+        [string]$AccessToken
+    )
+
+    $roleNames = @("employee")
+    if ($Role -eq "Manager") {
+        $roleNames += "manager"
+    }
+
+    $roleRepresentations = @()
+    foreach ($roleName in $roleNames) {
+        $roleRepresentations += Get-KeycloakRealmRole -RoleName $roleName -AccessToken $AccessToken
+    }
+
+    $uri = "$($env:KEYCLOAK_BASE_URL)/admin/realms/$($env:KEYCLOAK_REALM)/users/$UserId/role-mappings/realm"
+    $headers = @{
+        Authorization  = "Bearer $AccessToken"
+        "Content-Type" = "application/json"
+    }
+    # -AsArray forces JSON array syntax even when $roleRepresentations
+    # has only one element (e.g. baseline "employee" only) - without
+    # it, ConvertTo-Json would serialize a single-item collection as a
+    # bare object, which Keycloak's endpoint would reject.
+    $body = $roleRepresentations | ConvertTo-Json -Depth 5 -AsArray
+
+    try {
+        Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body | Out-Null
+    }
+    catch {
+        throw "Failed to assign roles to user '$UserId': $($_.Exception.Message)"
+    }
+}
+
 function Set-DepartmentMembership {
     # Adds the user to the department group matching their CSV
     # Department field (e.g. "IT" -> "department-it"). This does NOT

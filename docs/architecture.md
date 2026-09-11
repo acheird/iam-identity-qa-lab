@@ -192,6 +192,7 @@ enforced at the Keycloak permission level — see
 | Create user | ✓ | — | — | `manage-users` |
 | Update user | — | ✓ | ✓ | `manage-users` |
 | Add/remove groups | ✓ | ✓ | — | `manage-users` |
+| Look up realm role definitions | ✓ | ✓ | — | `view-realm` (found empirically — see ADR-0005) |
 | Add/remove roles | ✓ | ✓ | — | `manage-users` |
 | Disable account | — | — | ✓ | `manage-users` |
 | Delete user | ❌ | ❌ | ❌ | *not enforceable with a built-in role — see ADR-0005* |

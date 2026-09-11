@@ -1,4 +1,4 @@
-# ADR-0005: `acme-provisioner` uses the built-in `manage-users` role
+# ADR-0005: `acme-provisioner` uses the built-in `manage-users` and `view-realm` roles
 
 ## Status
 Accepted
@@ -13,13 +13,26 @@ exactly this set without also granting more.
 
 ## Decision
 Grant `acme-provisioner`'s service account the built-in
-`realm-management` role `manage-users`. This is accepted as least
-privilege *within the constraints of Keycloak's built-in
-administrative roles* — not true operation-level least privilege.
+`realm-management` roles `manage-users` **and `view-realm`**. This is
+accepted as least privilege *within the constraints of Keycloak's
+built-in administrative roles* — not true operation-level least
+privilege.
+
+**Empirical finding:** `manage-users` alone was initially assumed
+sufficient, based on Keycloak documentation, for every operation in
+the matrix below. In practice, looking up realm role definitions
+(required before assigning a role — Keycloak's role-mappings endpoint
+needs full role objects, not names) returned `403 Forbidden` under
+`manage-users` alone. `view-realm` was added and resolved it. This is
+kept here deliberately as a real example of verifying permissions
+empirically rather than trusting documentation alone — the same
+principle applied throughout this project (e.g. REQ-012's session
+revocation mechanism).
 
 ## Consequences
-- **Benefit:** `manage-users` is the minimal built-in role that covers
-  every operation the provisioning scripts actually need.
+- **Benefit:** `manage-users` + `view-realm` is the minimal built-in
+  role combination that covers every operation the provisioning
+  scripts actually need.
 - **Trade-off / residual risk:** the service account technically has
   delete-user capability it will never use, since the Leaver
   requirement (REQ-010) is deactivation, not identity deletion. This
