@@ -6,6 +6,7 @@
 
 . "$PSScriptRoot\KeycloakAuth.ps1"
 . "$PSScriptRoot\KeycloakUsers.ps1"
+. "$PSScriptRoot\KeycloakMembership.ps1"
 
 $csvPath = "$PSScriptRoot\..\data\employees.csv"
 $employees = Import-Csv -Path $csvPath
@@ -38,5 +39,8 @@ foreach ($employee in $employees) {
             -AccessToken $accessToken
 
         Write-Host "  $($employee.EmployeeID) ($username): CREATED (id: $newUserId)" -ForegroundColor Cyan
+
+        Set-DepartmentMembership -UserId $newUserId -Department $employee.Department -AccessToken $accessToken
+        Write-Host "  $($employee.EmployeeID) ($username): added to department-$($employee.Department.ToLower())" -ForegroundColor Cyan
     }
 }
