@@ -4,6 +4,51 @@
 # (identity CRUD), so that department changes and role changes stay
 # independently callable — see ADR-0001 (orthogonal Group/Role model).
 
+function Get-KeycloakUserGroups {
+    # Reads the user's CURRENT department group(s) from Keycloak —
+    # the actual state, not what the CSV says it should be. This is
+    # the "before" side of the Mover's diff logic (REQ-008).
+    param(
+        [Parameter(Mandatory)]
+        [string]$UserId,
+
+        [Parameter(Mandatory)]
+        [string]$AccessToken
+    )
+
+    $uri = "$($env:KEYCLOAK_BASE_URL)/admin/realms/$($env:KEYCLOAK_REALM)/users/$UserId/groups"
+    $headers = @{ Authorization = "Bearer $AccessToken" }
+
+    try {
+        return Invoke-RestMethod -Uri $uri -Method Get -Headers $headers
+    }
+    catch {
+        throw "Failed to read groups for user '$UserId': $($_.Exception.Message)"
+    }
+}
+
+function Get-KeycloakUserRealmRoles {
+    # Reads the user's CURRENT realm role assignments from Keycloak —
+    # the "before" side of the Mover's diff logic (REQ-009).
+    param(
+        [Parameter(Mandatory)]
+        [string]$UserId,
+
+        [Parameter(Mandatory)]
+        [string]$AccessToken
+    )
+
+    $uri = "$($env:KEYCLOAK_BASE_URL)/admin/realms/$($env:KEYCLOAK_REALM)/users/$UserId/role-mappings/realm"
+    $headers = @{ Authorization = "Bearer $AccessToken" }
+
+    try {
+        return Invoke-RestMethod -Uri $uri -Method Get -Headers $headers
+    }
+    catch {
+        throw "Failed to read realm roles for user '$UserId': $($_.Exception.Message)"
+    }
+}
+
 function Get-KeycloakGroupByName {
     param(
         [Parameter(Mandatory)]
