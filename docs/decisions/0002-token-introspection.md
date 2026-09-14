@@ -30,3 +30,53 @@ rather than local (offline) JWT signature validation. See
 - **Follow-on requirement:** this decision requires the `acme-api`
   client to be confidential (RFC 7662 introspection requires client
   authentication) — see `architecture.md` Section 3.
+
+## Addendum — audience requirement (empirical finding)
+
+The introspection endpoint needs to be able to associate the token
+with the client/resource server performing the introspection. In this
+setup, that means `acme-api` must appear in the access token's
+`aud` (audience) claim.
+
+```
+Eleni
+  ↓
+acme-web
+  ↓
+Access Token
+  ↓
+audience = acme-api
+  ↓
+acme-api introspection
+  ↓
+active = true
+```
+
+**What happened:** introspection initially returned `active: false`
+for freshly issued, unexpired tokens — confirmed healthy via a
+successful `/userinfo` call with the same token. The Keycloak event
+log showed the real cause directly:
+`error="invalid_token", reason="Client 'acme-api' is not in the
+token audience", token_issued_for="acme-web"`.
+
+**Fix:** a dedicated `audience-acme-api` client scope, with an
+"Audience" protocol mapper (Included Client Audience: `acme-api`),
+attached as a **default** scope to `acme-web`, so every token it
+issues includes `acme-api` in `aud`.
+
+**Why this matters:** without it, introspection by `acme-api` would
+never succeed for any `acme-web`-issued token, regardless of the
+token's actual validity — this is a hard prerequisite for the
+introspection design above to function at all, not an edge case.
+
+**Diagnostic note:** three other explanations were considered and
+ruled out first (token corruption in copy-paste, wrong client secret,
+a missing `openid` scope causing a separate, unrelated `/userinfo`
+403) before the real cause was confirmed directly from the Keycloak
+event log — not inferred from Postman responses alone.
+
+**Scope of this finding:** this confirms only that a freshly issued
+token introspects as `active: true` before any Leaver action. It is
+the REQ-012 baseline, not a conclusion — the real REQ-012 test
+(does the *same* token still introspect as active *after*
+termination/logout) is still ahead.
