@@ -18,6 +18,7 @@ a design choice needs justification.
 | [0004](decisions/0004-dedicated-service-account.md) | Dedicated service account for automation |
 | [0005](decisions/0005-manage-users-coarse-grained-permission.md) | `manage-users` accepted as coarse-grained least privilege |
 | [0006](decisions/0006-ropc-for-testing-convenience.md) | ROPC enabled on `acme-web` for testing only |
+| [0007](decisions/0007-audience-mapper-for-introspection.md) | `acme-web` tokens need an explicit audience mapper for `acme-api` |
 
 ## 1. Architecture Overview
 
@@ -104,7 +105,8 @@ groups assigned simultaneously.
 `acme-api` validates every request via Keycloak token introspection
 rather than local (offline) JWT signature validation — see
 [ADR-0002](decisions/0002-token-introspection.md) for the full
-rationale and trade-off.
+rationale and trade-off. This requires the token to carry `acme-api`
+in its audience — see [ADR-0007](decisions/0007-audience-mapper-for-introspection.md).
 
 ```
 Client
