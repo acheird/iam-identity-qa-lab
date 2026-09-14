@@ -80,3 +80,30 @@ token introspects as `active: true` before any Leaver action. It is
 the REQ-012 baseline, not a conclusion — the real REQ-012 test
 (does the *same* token still introspect as active *after*
 termination/logout) is still ahead.
+
+## Verification / Outcome
+
+The full discovery chain, in order:
+
+```
+Audience configuration missing
+        ↓
+introspection unusable (active: false for valid tokens)
+        ↓
+audience mapper added
+        ↓
+fresh token → introspection: active: true
+        ↓
+explicit session logout (POST /users/{id}/logout)
+        ↓
+same token → introspection: no longer active
+        ↓
+REQ-012 confirmed satisfied — see architecture.md Section 10
+```
+
+The session-revocation experiment (Eleni, E004) confirmed that after
+explicit session logout, the same previously issued token was no
+longer reported as active by Keycloak introspection — this is the
+scoped, empirically-supported claim; see Section 10 of
+`architecture.md` for the full evidence and for what is deliberately
+*not* claimed about Keycloak's internal mechanism.

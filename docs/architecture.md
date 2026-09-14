@@ -219,24 +219,31 @@ Access granted      independent, can           Revoke active session (REQ-012)
 
 **REQ-012 is satisfied, empirically confirmed, not assumed.**
 
-The mechanism: `POST /admin/realms/acme/users/{id}/logout`, called with
-an `acme-provisioner` admin token. This deletes the user's session
-record in Keycloak. Because `acme-api` validates every request via
-token introspection (not local JWT validation — ADR-0002), and
-introspection checks whether the session behind a token still exists,
-a token's underlying session no longer existing is enough to make
-introspection reject it — regardless of the token's own, unexpired
-`exp` claim.
+Session revocation is explicitly performed during the Leaver flow.
+When an employee is terminated, the system calls Keycloak's
+`POST /admin/realms/acme/users/{id}/logout` endpoint, using an
+`acme-provisioner` admin token.
 
-**How this was confirmed** (Eleni, E004):
+**Claim, scoped to what was actually observed:** after this explicit
+logout call, the same, previously issued access token was no longer
+reported as active by Keycloak's token introspection endpoint. This
+document does not assert *why* at the level of Keycloak's internal
+implementation (e.g. exactly what is deleted or how introspection
+checks it) beyond what the Keycloak event log itself reported —
+that level of detail was not verified against Keycloak's own
+documentation or source, and is not required to satisfy the
+requirement.
+
+**How this was confirmed** (Eleni, E004), repeated twice for
+certainty:
 ```
 11:06:19 — POST /users/{id}/logout
-11:06:38 — introspect same token → rejected ("JWT check failed"),
-            19 seconds later — far short of the token's 300s lifetime,
-            ruling out natural expiry as the explanation
-11:10:12 — repeated with a fresh token, for certainty
-11:10:50 — introspect → rejected ("user_session_not_found"),
-            38 seconds later
+11:06:38 — introspect same token → rejected, Keycloak log reason:
+            "JWT check failed" — 19 seconds later, far short of
+            the token's 300s lifetime, ruling out natural expiry
+11:10:12 — repeated with a fresh token
+11:10:50 — introspect → rejected, Keycloak log reason:
+            "user_session_not_found" — 38 seconds later
 ```
 Both rejection reasons come directly from the Keycloak event log, not
 inferred from the introspection response alone — consistent with this
@@ -246,8 +253,9 @@ A harmless, expected log line also appeared during this test —
 `Some clients have not been logged out for user eleni... acme-web` —
 this is Keycloak attempting a back-channel logout callback to
 `acme-web`, which this lab has no registered logout URL for. It does
-not affect the outcome: the session record is deleted regardless, and
-that deletion is what introspection actually checks.
+not affect the conclusion: the Keycloak user session was revoked
+either way, and the previously issued token stopped introspecting as
+active.
 
 **Planned Leaver sequence, now settled:**
 ```
