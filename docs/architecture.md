@@ -215,28 +215,58 @@ Access granted      independent, can           Revoke active session (REQ-012)
                                                  Access denied
 ```
 
-## 10. Session/Token Revocation for REQ-012
+## 10. Session/Token Revocation for REQ-012 — Confirmed
 
-**This section intentionally does not assert a mechanism as fact.**
-Whether disabling a Keycloak user automatically invalidates existing
-sessions, or whether an explicit session/logout call is required, will
-be **verified empirically** during implementation against the specific
-Keycloak version used — not assumed from documentation.
+**REQ-012 is satisfied, empirically confirmed, not assumed.**
 
-Planned Leaver sequence:
+The mechanism: `POST /admin/realms/acme/users/{id}/logout`, called with
+an `acme-provisioner` admin token. This deletes the user's session
+record in Keycloak. Because `acme-api` validates every request via
+token introspection (not local JWT validation — ADR-0002), and
+introspection checks whether the session behind a token still exists,
+a token's underlying session no longer existing is enough to make
+introspection reject it — regardless of the token's own, unexpired
+`exp` claim.
+
+**How this was confirmed** (Eleni, E004):
+```
+11:06:19 — POST /users/{id}/logout
+11:06:38 — introspect same token → rejected ("JWT check failed"),
+            19 seconds later — far short of the token's 300s lifetime,
+            ruling out natural expiry as the explanation
+11:10:12 — repeated with a fresh token, for certainty
+11:10:50 — introspect → rejected ("user_session_not_found"),
+            38 seconds later
+```
+Both rejection reasons come directly from the Keycloak event log, not
+inferred from the introspection response alone — consistent with this
+project's practice of confirming Keycloak behavior empirically.
+
+A harmless, expected log line also appeared during this test —
+`Some clients have not been logged out for user eleni... acme-web` —
+this is Keycloak attempting a back-channel logout callback to
+`acme-web`, which this lab has no registered logout URL for. It does
+not affect the outcome: the session record is deleted regardless, and
+that deletion is what introspection actually checks.
+
+**Planned Leaver sequence, now settled:**
 ```
 HR = Terminated
        │
-       ├── Disable account         (REQ-010)
-       ├── Remove groups/roles     (REQ-011)
-       └── Invalidate active sessions via Keycloak admin API
-                                    (REQ-012 — mechanism TBD/verified)
+       ├── Disable account                          (REQ-010)
+       ├── Remove groups/roles                       (REQ-011)
+       └── POST /users/{id}/logout                   (REQ-012 — confirmed)
+                                                       │
+                                                       ▼
+                                     Existing sessions immediately
+                                     fail introspection
 ```
 
-If the first implementation attempt turns out to leave existing
-sessions valid after disable, that is treated as a genuine defect
-(e.g. `DEF-001 — Terminated user's existing session remains usable`),
-not silently patched into the test. This is deliberate: it produces a
+If a future implementation attempt (e.g. a bug in
+`deprovision-users.ps1`) leaves existing sessions valid after
+termination, that is treated as a genuine defect (e.g.
+`DEF-001 — Terminated user's existing session remains usable`), not
+silently patched into the test. This is deliberate: it produces a
 Requirement → Test → Failure → Defect → Fix → Regression cycle, which
 is a stronger demonstration of QA process than a lab that "just
 worked" on the first try.
