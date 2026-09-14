@@ -73,6 +73,48 @@ function Get-KeycloakGroupByName {
     }
 }
 
+function Remove-RoleMembership {
+    # Removes specific realm role(s) from a user, by name. Used for
+    # the Manager -> Employee downgrade (REQ-009): pass only
+    # @("manager") to remove — "employee" is never included here, so
+    # it is never touched, matching ADR-0003 (explicit dual
+    # assignment, employee survives manager's removal).
+    param(
+        [Parameter(Mandatory)]
+        [string]$UserId,
+
+        [Parameter(Mandatory)]
+        [string[]]$RoleNames,
+
+        [Parameter(Mandatory)]
+        [string]$AccessToken
+    )
+
+    $roleRepresentations = @()
+    foreach ($roleName in $RoleNames) {
+        $roleRepresentations += Get-KeycloakRealmRole -RoleName $roleName -AccessToken $AccessToken
+    }
+
+    $uri = "$($env:KEYCLOAK_BASE_URL)/admin/realms/$($env:KEYCLOAK_REALM)/users/$UserId/role-mappings/realm"
+    $headers = @{
+        Authorization  = "Bearer $AccessToken"
+        "Content-Type" = "application/json"
+    }
+    $body = $roleRepresentations | ConvertTo-Json -Depth 5 -AsArray
+
+    try {
+        # Keycloak's role-mappings DELETE takes a body, same shape as
+        # the POST used to add roles — just the opposite operation on
+        # the same resource, same convention we already saw with
+        # groups (PUT to add, DELETE to remove).
+        Invoke-RestMethod -Uri $uri -Method Delete -Headers $headers -Body $body | Out-Null
+        return $RoleNames
+    }
+    catch {
+        throw "Failed to remove roles from user '$UserId': $($_.Exception.Message)"
+    }
+}
+
 function Get-KeycloakRealmRole {
     # Fetches the full role representation object for a realm role by
     # name. Needed because Keycloak's role-mappings endpoint expects
