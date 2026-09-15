@@ -148,17 +148,18 @@ scenario):
 
 | Endpoint            | Required group/role                          | Requirement(s) |
 |----------------------|-----------------------------------------------|-----------------|
-| `GET /hr/data`       | `department-hr`                               | Supporting endpoint; no dedicated requirement |
-| `GET /finance/data`  | `department-finance`                          | REQ-014         |
-| `GET /it/data`       | `department-it`                               | REQ-013         |
-| `GET /it/admin`      | `department-it` **and** `it-admin`            | REQ-016         |
-| `GET /manager/dashboard` | `manager`                                 | REQ-015         |
-| `GET /whoami`        | any authenticated (active) token              | REQ-012 baseline check |
+| `GET /api/hr/data`       | `department-hr`                               | Supporting endpoint; no dedicated requirement |
+| `GET /api/finance/data`  | `department-finance`                          | REQ-014         |
+| `GET /api/it/data`       | `department-it`                               | REQ-013         |
+| `GET /api/it/admin`      | `department-it` **and** `it-admin`            | REQ-016         |
+| `GET /api/manager/dashboard` | `manager`                                 | REQ-015         |
+| `GET /api/whoami`        | any authenticated (active) token              | REQ-012 baseline check |
 
-`/whoami` is deliberately the simplest possible endpoint — it is the
-one used for the REQ-012 session-revocation test, so it should have no
-authorization logic beyond "is this token still active", keeping that
-specific test isolated from group/role authorization concerns.
+`/api/whoami` is deliberately the simplest possible endpoint — it is
+the one used for the REQ-012 session-revocation test, so it should
+have no authorization logic beyond "is this token still active",
+keeping that specific test isolated from group/role authorization
+concerns.
 
 ## 8. JML Provisioning Architecture
 
