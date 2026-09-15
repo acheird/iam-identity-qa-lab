@@ -333,3 +333,15 @@ required variables without exposing real values.
   of the IAM/QA work demonstrated here — CSV-based bootstrap connectors
   are also a real, documented pattern in production IAM
   implementations.
+
+- **Privileged roles (`hr-admin`, `it-admin`) are out of scope for
+  both automated assignment and automated revocation.** REQ-006
+  already establishes that these are never assigned by the HR-driven
+  automation; symmetrically, `deprovision-users.ps1` does not revoke
+  them either — it only removes `employee`/`manager`, the roles the
+  HR lifecycle actually manages. An IAM Administrator remains
+  responsible for granting and revoking privileged roles manually.
+  This is an explicit inclusion list by design, not an oversight —
+  see the comment in `deprovision-users.ps1` for the reasoning
+  against instead removing "anything not a known Keycloak system
+  role."
