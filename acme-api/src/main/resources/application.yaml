@@ -1,3 +1,13 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: acme-api
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          introspection-uri: http://localhost:8080/realms/acme/protocol/openid-connect/token/introspect
+          client-id: acme-api
+          client-secret: ${ACME_API_CLIENT_SECRET}
