@@ -355,3 +355,25 @@ required variables without exposing real values.
   see the comment in `deprovision-users.ps1` for the reasoning
   against instead removing "anything not a known Keycloak system
   role."
+
+- **Non-Human Identity (NHI) governance for `acme-provisioner` covers
+  creation and use, not its full lifecycle.** The service account
+  ([ADR-0004](decisions/0004-dedicated-service-account.md)) has
+  preventive controls in place today: a dedicated machine identity
+  (not a human's credentials), a client secret kept out of source
+  control, and a scoped, documented permission set
+  ([ADR-0005](decisions/0005-manage-users-coarse-grained-permission.md)).
+  What this project does **not** implement are the lifecycle/detective
+  controls a production NHI governance program would add:
+  1. automated secret rotation
+  2. usage/activity monitoring (e.g. anomalous call volume, unexpected
+     source)
+  3. periodic access recertification (does this account still need
+     these permissions?)
+  4. contextual restrictions (e.g. network/source restrictions)
+
+  In lifecycle terms:
+  ```
+  Create → Assign permissions → Use → Monitor → Review → Rotate → Revoke
+  └──────────── covered ────────────┘   └────── out of scope ──────┘
+  ```
