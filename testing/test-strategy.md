@@ -77,11 +77,44 @@ rather than assume it.
 
 ## 7. Defect management
 
-Defects are recorded as individual files under `testing/defects/`
-(`BUG-001.md`, etc.), with: ID, Title, Severity, Priority, Requirement,
-Environment, Preconditions, Steps to Reproduce, Expected Result,
-Actual Result, Evidence, Status. Severity/Priority use a simple
-Critical/High/Medium/Low scale.
+Defects are documented individually under `testing/defects/`
+(`BUG-001.md`, etc.). Each record contains: Defect ID, Title,
+Severity, Priority, Requirement, Environment, Preconditions, Steps to
+Reproduce, Expected Result, Actual Result, Evidence, Root Cause,
+Impact, Status.
+
+**Defect lifecycle.** A failed test execution does not automatically
+mean the test case itself is wrong. The failure is investigated to
+determine whether it is caused by an implementation defect, an
+incorrect or incomplete requirement, invalid test data, an
+environment/configuration issue, or an issue in the test procedure
+itself. When an implementation defect is identified, it is recorded
+and linked to the relevant test case and requirement.
+
+The **Root Cause** field records the identified cause once
+sufficient investigation has been done — it may be `TBD` or `Under
+investigation` before that. The **Impact** field describes the
+functional/business effect independently of the technical cause.
+
+Defect status is tracked separately from test execution status: a
+failed test may remain linked to an open defect until the defect is
+fixed and the test is successfully retested.
+
+**Severity scale:**
+- **Critical** — prevents a core system function, or causes a severe
+  security/authorization failure.
+- **High** — significantly affects an important requirement or
+  workflow.
+- **Medium** — affects functionality but does not prevent the main
+  workflow from operating.
+- **Low** — minor functional/usability issue with limited impact.
+
+**Retesting and regression.** After a defect is fixed: the originally
+failed test case is executed again (retest) and the result recorded;
+related tests are considered for regression, to verify the fix did
+not introduce unintended changes elsewhere. The original failed
+execution and its evidence are retained — not overwritten — so the
+defect's full lifecycle stays traceable.
 
 ## 8. Tools
 

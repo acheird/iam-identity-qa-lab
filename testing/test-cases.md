@@ -128,7 +128,11 @@ subsequent step, not assumed here.
 - **Expected Result:** In a single run: identity created, added to
   `department-finance`, and holds **both** `employee` and `manager`
   — all three together, not requiring any follow-up run.
-- **Status:** Not yet executed
+- **Actual Result:** Creation failed with `409 Conflict` — the
+  derived username (`test`) collided with `E006`'s, created earlier
+  with the same `FirstName`. No identity, group, or role was created
+  for `E007`. See **BUG-001**.
+- **Status:** FAIL (blocked by BUG-001)
 
 ---
 
