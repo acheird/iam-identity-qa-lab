@@ -30,14 +30,21 @@ along the way.
         revocation mechanism was verified empirically against live
         Keycloak behavior, not assumed — see `docs/architecture.md`
         Section 10)
-- [ ] Protected API (`acme-api`, Spring Boot 4.1.1) — Resource Server
-      configured against Keycloak token introspection; endpoints not
-      yet implemented
+- [x] Protected API (`acme-api`, Spring Boot 4.1.1) — OAuth2 Resource
+      Server against Keycloak token introspection, 5 endpoints,
+      verified end-to-end with real tokens (positive and negative
+      cases for each):
+  - [x] `/api/whoami` — REQ-012 baseline (any active token)
+  - [x] `/api/it/data` — REQ-013 (department-based, group only)
+  - [x] `/api/finance/data` — REQ-014 (department-based, group only)
+  - [x] `/api/manager/dashboard` — REQ-015 (role only, independent
+        of department)
+  - [x] `/api/it/admin` — REQ-016 (group AND role together)
 - [ ] Test strategy
 - [ ] Manual test cases & execution
 - [ ] Defect reports
 - [ ] Regression testing
-- [ ] API testing (Postman)
+- [ ] API testing (Postman collection)
 - [ ] Automated tests (Java + REST Assured/JUnit)
 - [ ] CI (GitHub Actions)
 
@@ -54,7 +61,7 @@ keycloak/
 data/
 └── employees.csv       # HR source feed
 scripts/                # PowerShell JML automation
-acme-api/                # Spring Boot protected resource (in progress)
+acme-api/                # Spring Boot protected resource
 docker-compose.yml
 ```
 
