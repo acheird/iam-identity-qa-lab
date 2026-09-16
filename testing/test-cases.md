@@ -24,7 +24,11 @@ subsequent step, not assumed here.
 - **Expected Result:** Output shows `E006` as "NOT FOUND - creating...",
   then "CREATED", with a new Keycloak user ID. The user exists in
   Keycloak Admin Console with matching first/last name and email.
-- **Status:** Not yet executed
+- **Actual Result:** `E006` created (id: `a42b7b9f-277a-4686-8583-cc4bb1aa72e4`),
+  added to `department-it`, `employee` role assigned. Confirmed in
+  Admin Console: First name `Test`, Last name `User`, email
+  `testuser@email.com`.
+- **Status:** PASS
 
 ---
 
@@ -41,7 +45,9 @@ subsequent step, not assumed here.
   2. Run `.\scripts\provision-users.ps1` again, with no CSV change.
 - **Expected Result:** Output shows `E006` as "FOUND in Keycloak",
   with the **same** user ID as before — no new user created.
-- **Status:** Not yet executed
+- **Actual Result:** `E006` FOUND, id `a42b7b9f-277a-4686-8583-cc4bb1aa72e4`
+  — identical to TC-001's created ID. No duplicate created.
+- **Status:** PASS
 
 ---
 
