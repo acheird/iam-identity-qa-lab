@@ -157,7 +157,16 @@ subsequent step, not assumed here.
 - **Expected Result:** Output shows a department change detected for
   `E006`. Afterward, `E006`'s groups contain **only**
   `department-finance` — `department-it` is no longer present.
-- **Status:** Not yet executed
+- **Actual Result:** Output showed the department change detected
+  and applied for `E006` exactly as expected — `department-it`
+  removed, `department-finance` added.
+- **Status:** PASS. (Note: this same execution, run against the full
+  CSV as always, also touched an unrelated `Terminated` employee
+  already present in the file and surfaced two separate defects —
+  BUG-002 and BUG-003. Those are independent findings, not part of
+  TC-008's own pass/fail — see the defect files for detail, and the
+  planned new test case covering Mover behavior for terminated
+  employees specifically.)
 
 ---
 
