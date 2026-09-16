@@ -128,11 +128,18 @@ subsequent step, not assumed here.
 - **Expected Result:** In a single run: identity created, added to
   `department-finance`, and holds **both** `employee` and `manager`
   — all three together, not requiring any follow-up run.
-- **Actual Result:** Creation failed with `409 Conflict` — the
-  derived username (`test`) collided with `E006`'s, created earlier
-  with the same `FirstName`. No identity, group, or role was created
-  for `E007`. See **BUG-001**.
-- **Status:** FAIL (blocked by BUG-001)
+- **Actual Result (original execution):** Creation failed with `409
+  Conflict` — the derived username (`test`) collided with `E006`'s,
+  created earlier with the same `FirstName`. No identity, group, or
+  role was created for `E007`. See **BUG-001**.
+- **Actual Result (retest, after changing `E007`'s `FirstName` to a
+  unique value — `Manager` — not a fix to the underlying defect):**
+  `E007` created (id: `0cc66ddb-9031-4aea-907d-5c223869d68e`), added
+  to `department-finance`, roles `employee` + `manager` assigned
+  together, in one run.
+- **Status:** PASS (retest). BUG-001 remains **Open** — this retest
+  used different test data, it did not fix or disprove the
+  underlying username-collision defect.
 
 ---
 
