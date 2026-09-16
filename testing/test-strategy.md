@@ -30,7 +30,8 @@ and `docs/architecture.md` for those.
 - **Automated testing** covers a smaller, prioritized subset of the
   highest-value test cases (Java + REST Assured/JUnit), added later.
 - **Approach:** black-box, requirement-driven. Every test case traces
-  to exactly one requirement ID.
+  to a primary requirement ID (see Section 4 for the full traceability
+  rule).
 
 ## 3. Test types
 
