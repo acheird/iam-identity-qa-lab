@@ -217,10 +217,16 @@ subsequent step, not assumed here.
 - **Expected Result:** Output shows a role change detected
   (Employee → Manager). Afterward, `E006` holds **both** `employee`
   and `manager`.
-- **Actual Result:** Output showed "role change detected - Employee
-  -> Manager", "manager role added". Department (`department-finance`)
-  correctly unaffected.
+- **Actual Result (original execution):** Output showed "role change
+  detected - Employee -> Manager", "manager role added". Department
+  (`department-finance`) correctly unaffected.
 - **Status:** PASS
+- **Regression execution (after BUG-003 fix to `update-users.ps1`):**
+  re-run with `E006` at `Role=Employee` → `Manager` again (starting
+  from `{employee}` only, via a fresh scenario constructed to also
+  retest BUG-003). Output: "role(s) missing - adding manager", "role
+  reconciled to (employee, manager)" — same correct outcome as
+  before, under the new reconciliation logic. **PASS.**
 
 ---
 
@@ -238,9 +244,14 @@ subsequent step, not assumed here.
 - **Expected Result:** Output shows a role change detected
   (Manager → Employee). Afterward, `E006` holds **only** `employee`
   — `manager` is no longer present.
-- **Actual Result:** Output showed "role change detected - Manager
-  -> Employee", "manager role removed, employee retained".
+- **Actual Result (original execution):** Output showed "role change
+  detected - Manager -> Employee", "manager role removed, employee
+  retained".
 - **Status:** PASS
+- **Regression execution (after BUG-003 fix):** re-run with `E006`
+  at `Role=Manager` → `Employee`. Output: "role(s) not desired -
+  removing manager", "role reconciled to (employee)" — same correct
+  outcome, under the new logic. **PASS.**
 
 ---
 
