@@ -62,28 +62,32 @@ foreach ($employee in $employees) {
     # Role change (REQ-009) — evaluated independently of department
     # (ADR-0001): a role change can happen with or without a
     # department change in the same run.
+    # BUG-003 fix: compare the FULL desired role set against the full
+    # current set, not just whether "manager" matches — the old logic
+    # never asserted that "employee" itself was present.
+    $desiredRoles = if ($employee.Role -eq "Manager") { @("employee", "manager") } else { @("employee") }
     $currentRoles = Get-KeycloakUserRealmRoles -UserId $existingUser.id -AccessToken $accessToken
     $currentRoleNames = $currentRoles | ForEach-Object { $_.name }
-    $hasManager = $currentRoleNames -contains "manager"
-    $shouldBeManager = ($employee.Role -eq "Manager")
+    $currentBusinessRoles = $currentRoleNames | Where-Object { $_ -in @("employee", "manager") }
 
-    if ($shouldBeManager -and -not $hasManager) {
-        Write-Host "  $($employee.EmployeeID): role change detected - Employee -> Manager" -ForegroundColor Cyan
-        # Reuses Set-RoleMembership, which always includes "employee"
-        # too — re-adding a role the user already has is a harmless,
-        # idempotent no-op in Keycloak.
-        Set-RoleMembership -UserId $existingUser.id -Role $employee.Role -AccessToken $accessToken | Out-Null
-        Write-Host "  $($employee.EmployeeID): manager role added" -ForegroundColor Cyan
-    }
-    elseif (-not $shouldBeManager -and $hasManager) {
-        Write-Host "  $($employee.EmployeeID): role change detected - Manager -> Employee" -ForegroundColor Cyan
-        # Only "manager" is passed for removal — "employee" is never
-        # in this set, so it is never touched (ADR-0003).
-        Remove-RoleMembership -UserId $existingUser.id -RoleNames @("manager") -AccessToken $accessToken | Out-Null
-        Write-Host "  $($employee.EmployeeID): manager role removed, employee retained" -ForegroundColor Cyan
+    $missingRoles = $desiredRoles | Where-Object { $_ -notin $currentBusinessRoles }
+    $extraRoles = $currentBusinessRoles | Where-Object { $_ -notin $desiredRoles }
+
+    if ($missingRoles.Count -eq 0 -and $extraRoles.Count -eq 0) {
+        Write-Host "  $($employee.EmployeeID): role already correct ($($desiredRoles -join ', '))" -ForegroundColor Green
     }
     else {
-        $roleLabel = if ($shouldBeManager) { "employee + manager" } else { "employee" }
-        Write-Host "  $($employee.EmployeeID): role already correct ($roleLabel)" -ForegroundColor Green
+        if ($missingRoles.Count -gt 0) {
+            Write-Host "  $($employee.EmployeeID): role(s) missing - adding $($missingRoles -join ', ')" -ForegroundColor Cyan
+            # Set-RoleMembership adds the full desired set for this
+            # employee's Role value; re-adding an already-present
+            # role is a harmless, idempotent no-op in Keycloak.
+            Set-RoleMembership -UserId $existingUser.id -Role $employee.Role -AccessToken $accessToken | Out-Null
+        }
+        if ($extraRoles.Count -gt 0) {
+            Write-Host "  $($employee.EmployeeID): role(s) not desired - removing $($extraRoles -join ', ')" -ForegroundColor Cyan
+            Remove-RoleMembership -UserId $existingUser.id -RoleNames $extraRoles -AccessToken $accessToken | Out-Null
+        }
+        Write-Host "  $($employee.EmployeeID): role reconciled to ($($desiredRoles -join ', '))" -ForegroundColor Cyan
     }
 }
