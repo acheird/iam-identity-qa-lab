@@ -22,12 +22,21 @@ foreach ($employee in $employees) {
     # Username is a human-readable login identifier only. It is NOT
     # the uniqueness anchor - EmployeeID is (REQ-002). See
     # Get-KeycloakUserByEmployeeId in KeycloakUsers.ps1.
-    $username = $employee.FirstName.ToLower()
+    # BUG-001 fix (ADR-0007): FirstName alone collided when two
+    # employees shared a first name. Appending EmployeeID makes the
+    # username deterministic and unique, inheriting uniqueness from
+    # the same anchor REQ-002 already guarantees.
+    $username = "$($employee.FirstName)-$($employee.EmployeeID)".ToLower()
 
     $existingUser = Get-KeycloakUserByEmployeeId -EmployeeId $employee.EmployeeID -AccessToken $accessToken
 
     if ($existingUser) {
-        Write-Host "  $($employee.EmployeeID) ($username): FOUND in Keycloak (id: $($existingUser.id))" -ForegroundColor Yellow
+        # BUG-004 fix: log the ACTUAL Keycloak username, not the
+        # computed one — they legitimately differ for employees
+        # provisioned before ADR-0007's naming scheme (see its
+        # "Existing Usernames" section). The computed $username is
+        # only correct for the "not found - creating" branch below.
+        Write-Host "  $($employee.EmployeeID) ($($existingUser.username)): FOUND in Keycloak (id: $($existingUser.id))" -ForegroundColor Yellow
     }
     else {
         Write-Host "  $($employee.EmployeeID) ($username): NOT FOUND - creating..." -ForegroundColor Green
