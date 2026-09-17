@@ -272,11 +272,17 @@ subsequent step, not assumed here.
   `E007` ends with **only** `department-it` (not `department-finance`)
   and **only** `employee` (not `manager`) — no leftover state from
   either previous dimension.
-- **Actual Result:** Output showed both changes detected and applied
-  together in one run: department moved `department-finance` →
-  `department-it`; role changed Manager → Employee, `manager`
-  removed, `employee` retained.
+- **Actual Result (original execution):** Output showed both changes
+  detected and applied together in one run: department moved
+  `department-finance` → `department-it`; role changed Manager →
+  Employee, `manager` removed, `employee` retained.
 - **Status:** PASS
+- **Regression execution (after BUG-003 fix):** re-run with `E007`
+  changed IT → Sales **and** Employee → Manager, in one CSV edit.
+  Output: "department change detected... moved to department-sales",
+  "role(s) missing - adding manager", "role reconciled to (employee,
+  manager)" — both dimensions correctly applied together under the
+  new logic. **PASS.**
 
 ---
 
