@@ -403,7 +403,9 @@ sequence is: TC-015 (steps 1–2) → TC-013 → TC-014 → TC-015 (step 4)
   1. `GET http://localhost:8081/api/finance/data`, with Giorgos's
      token.
 - **Expected Result:** `200`, with Finance data in the response body.
-- **Status:** Not yet executed
+- **Actual Result:** `200`, `{"message": "Welcome to Finance data",
+  "department": "Finance"}`.
+- **Status:** PASS
 
 ---
 
@@ -417,7 +419,8 @@ sequence is: TC-015 (steps 1–2) → TC-013 → TC-014 → TC-015 (step 4)
 - **Steps:**
   1. `GET http://localhost:8081/api/finance/data`, with Nikos's token.
 - **Expected Result:** `403 Forbidden`.
-- **Status:** Not yet executed
+- **Actual Result:** `403 Forbidden`.
+- **Status:** PASS
 
 ---
 
