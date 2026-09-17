@@ -48,3 +48,26 @@ rather than introducing a second, independent uniqueness mechanism.
   uniqueness to `EmployeeID`, not to username or name. This decision
   is an implementation detail of *how* the username is derived, not
   a new business requirement.
+
+## Existing Usernames
+
+This decision applies to new IAM identities created after the
+introduction of the `FirstName-EmployeeID` naming scheme.
+
+Existing usernames are not retroactively renamed as part of Joiner
+provisioning or routine reconciliation. Legacy and new username
+formats may therefore coexist (e.g. `maria` alongside `test-e006`).
+
+**Why not migrate as a side effect of provisioning:** a username is
+a login credential on an already active identity — changing it is a
+real, sensitive IAM action, not something a routine Joiner run
+should perform incidentally. A future username migration, if ever
+required, must be treated as a separate, controlled change with its
+own impact analysis, migration procedure, and testing — not implicit
+behavior of this script.
+
+**Consequence for tooling:** any code that reports an employee's
+username (e.g. Joiner log output) must read the **actual** username
+from Keycloak for an already-existing employee, never assume it
+matches what the current formula would compute — those can
+legitimately differ. See BUG-004.
