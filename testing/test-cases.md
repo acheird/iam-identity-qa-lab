@@ -144,14 +144,22 @@ subsequent step, not assumed here.
   Conflict` — the derived username (`test`) collided with `E006`'s,
   created earlier with the same `FirstName`. No identity, group, or
   role was created for `E007`. See **BUG-001**.
-- **Actual Result (retest, after changing `E007`'s `FirstName` to a
-  unique value — `Manager` — not a fix to the underlying defect):**
-  `E007` created (id: `0cc66ddb-9031-4aea-907d-5c223869d68e`), added
-  to `department-finance`, roles `employee` + `manager` assigned
+- **Actual Result (interim retest, after changing `E007`'s
+  `FirstName` to a unique value — `Manager` — not a fix to the
+  underlying defect):** `E007` created (id:
+  `0cc66ddb-9031-4aea-907d-5c223869d68e`), added to
+  `department-finance`, roles `employee` + `manager` assigned
   together, in one run.
-- **Status:** PASS (retest). BUG-001 remains **Open** — this retest
-  used different test data, it did not fix or disprove the
-  underlying username-collision defect.
+- **Actual Result (regression retest, after BUG-001/ADR-0007 fix,
+  with `E007`'s `FirstName` reverted back to `Test` — the actual
+  original collision condition, both `E006` and `E007` deleted and
+  recreated fresh):** Both created successfully — `E006` as
+  `test-e006`, `E007` as `test-e007`. `E007` added to
+  `department-sales`, roles `employee` + `manager` assigned together.
+  No collision, no `409 Conflict`, despite both sharing
+  `FirstName=Test`.
+- **Status:** PASS. BUG-001 is now fixed — this final retest used
+  the exact original failure condition, not substitute test data.
 
 ---
 
