@@ -5,6 +5,10 @@
 # Unlike the Joiner, this script only acts on employees who ALREADY
 # exist in Keycloak — an employee not found here is skipped (creating
 # new identities is provision-users.ps1's job, not this one's).
+# It also only acts on Active employees — a Terminated employee is
+# skipped entirely (BUG-002 fix), since reconciling their state here
+# would undo deprovision-users.ps1's work; see architecture.md
+# Section 8, "Status-scoped responsibility".
 
 . "$PSScriptRoot\KeycloakAuth.ps1"
 . "$PSScriptRoot\KeycloakUsers.ps1"
@@ -19,6 +23,13 @@ $tokenResponse = Get-KeycloakToken
 $accessToken = $tokenResponse.access_token
 
 foreach ($employee in $employees) {
+    # BUG-002: Mover only reconciles Active employees. Terminated
+    # employees are handled exclusively by the Leaver.
+    if ($employee.Status -eq "Terminated") {
+        Write-Host "  $($employee.EmployeeID): skipped - employee is Terminated" -ForegroundColor Yellow
+        continue
+    }
+
     $existingUser = Get-KeycloakUserByEmployeeId -EmployeeId $employee.EmployeeID -AccessToken $accessToken
 
     if (-not $existingUser) {
