@@ -18,6 +18,7 @@ a design choice needs justification.
 | [0004](decisions/0004-dedicated-service-account.md) | Dedicated service account for automation |
 | [0005](decisions/0005-manage-users-coarse-grained-permission.md) | `manage-users` accepted as coarse-grained least privilege |
 | [0006](decisions/0006-ropc-for-testing-convenience.md) | ROPC enabled on `acme-web` for testing only |
+| [0007](decisions/0007-username-generation-strategy.md) | Username generation: `FirstName-EmployeeID`, not `FirstName` alone (resolves BUG-001) |
 
 ## 1. Architecture Overview
 
