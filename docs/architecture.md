@@ -205,11 +205,31 @@ enforced at the Keycloak permission level — see
 | Read user | ✓ | ✓ | ✓ | `manage-users` |
 | Create user | ✓ | — | — | `manage-users` |
 | Update user | — | ✓ | ✓ | `manage-users` |
-| Add/remove groups | ✓ | ✓ | — | `manage-users` |
-| Look up realm role definitions | ✓ | ✓ | — | `view-realm` (found empirically — see ADR-0005) |
-| Add/remove roles | ✓ | ✓ | — | `manage-users` |
+| Add/remove groups | ✓ | ✓ | ✓ | `manage-users` |
+| Look up realm role definitions | ✓ | ✓ | ✓ | `view-realm` (found empirically — see ADR-0005) |
+| Add/remove roles | ✓ | ✓ | ✓ | `manage-users` |
 | Disable account | — | — | ✓ | `manage-users` |
 | Delete user | ❌ | ❌ | ❌ | *not enforceable with a built-in role — see ADR-0005* |
+
+**Status-scoped responsibility.** Each script acts on a distinct
+`Status` band, and must not act outside it:
+
+```
+JOINER   Active + not yet in Keycloak   → create/provision
+MOVER    Active + already in Keycloak   → reconcile department/role
+LEAVER   Terminated                     → deprovision
+```
+
+This was not explicit until BUG-002 (Mover restoring access for a
+`Terminated` employee) made the gap concrete: `update-users.ps1` had
+no `Status` check at all, so it treated every CSV row — including
+`Terminated` ones — as eligible for Active-employee reconciliation.
+The fix is that the Mover must skip `Terminated` employees entirely,
+not attempt to reconcile or "correct" their department/role state.
+Deliberately rejected alternative: having the Mover also
+revoke/correct access for `Terminated` employees, which would make it
+overlap with the Leaver's responsibility — access revocation stays
+`deprovision-users.ps1`'s job alone.
 
 ## 9. Joiner / Mover / Leaver Flows
 
