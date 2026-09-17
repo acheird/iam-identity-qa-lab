@@ -249,7 +249,11 @@ subsequent step, not assumed here.
   `E007` ends with **only** `department-it` (not `department-finance`)
   and **only** `employee` (not `manager`) — no leftover state from
   either previous dimension.
-- **Status:** Not yet executed
+- **Actual Result:** Output showed both changes detected and applied
+  together in one run: department moved `department-finance` →
+  `department-it`; role changed Manager → Employee, `manager`
+  removed, `employee` retained.
+- **Status:** PASS
 
 ---
 
