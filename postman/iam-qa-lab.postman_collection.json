@@ -1,14 +1,12 @@
 {
   "info": {
+    "_postman_id": "44a23ca2-bf43-44ee-9c27-6ae4a282212b",
     "name": "IAM Identity Lifecycle & QA Lab",
     "description": "API-level validation of authentication and authorization requirements for the Acme Technologies IAM scenario.\n\nRequirements covered:\n- REQ-012 - Active Session Revocation (baseline token validity; the full revocation-after-termination scenario is TC-015, executed manually due to its Leaver-dependent sequencing - not duplicated here)\n- REQ-013 - IT Access\n- REQ-014 - Finance Access\n- REQ-015 - Manager Access\n- REQ-016 - Administrator Access\n\nThis collection is not a copy of all 27 test cases in testing/test-cases.md - it covers the API-testable subset. Run every request under Authentication first (top to bottom) before any Authorization or Session & Authentication request, since those reuse the tokens captured here.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43341552",
+    "_collection_link": "https://go.postman.co/collection/43341552-44a23ca2-bf43-44ee-9c27-6ae4a282212b?source=collection_link"
   },
-  "variable": [
-    { "key": "keycloak_base_url", "value": "http://localhost:8080" },
-    { "key": "api_base_url", "value": "http://localhost:8081" },
-    { "key": "realm", "value": "acme" }
-  ],
   "item": [
     {
       "name": "Authentication",
@@ -30,23 +28,52 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "grant_type", "value": "password" },
-                { "key": "client_id", "value": "acme-web" },
-                { "key": "username", "value": "nikos" },
-                { "key": "password", "value": "REPLACE_ME" },
-                { "key": "scope", "value": "openid" }
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                },
+                {
+                  "key": "client_id",
+                  "value": "acme-web"
+                },
+                {
+                  "key": "username",
+                  "value": "nikos"
+                },
+                {
+                  "key": "password",
+                  "value": "REPLACE_ME"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid"
+                }
               ]
             },
             "url": {
               "raw": "{{keycloak_base_url}}/realms/{{realm}}/protocol/openid-connect/token",
-              "host": ["{{keycloak_base_url}}"],
-              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+              "host": [
+                "{{keycloak_base_url}}"
+              ],
+              "path": [
+                "realms",
+                "{{realm}}",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Login - Maria",
@@ -65,23 +92,52 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "grant_type", "value": "password" },
-                { "key": "client_id", "value": "acme-web" },
-                { "key": "username", "value": "maria" },
-                { "key": "password", "value": "REPLACE_ME" },
-                { "key": "scope", "value": "openid" }
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                },
+                {
+                  "key": "client_id",
+                  "value": "acme-web"
+                },
+                {
+                  "key": "username",
+                  "value": "maria"
+                },
+                {
+                  "key": "password",
+                  "value": "REPLACE_ME"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid"
+                }
               ]
             },
             "url": {
               "raw": "{{keycloak_base_url}}/realms/{{realm}}/protocol/openid-connect/token",
-              "host": ["{{keycloak_base_url}}"],
-              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+              "host": [
+                "{{keycloak_base_url}}"
+              ],
+              "path": [
+                "realms",
+                "{{realm}}",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Login - Giorgos",
@@ -100,23 +156,52 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "grant_type", "value": "password" },
-                { "key": "client_id", "value": "acme-web" },
-                { "key": "username", "value": "giorgos" },
-                { "key": "password", "value": "REPLACE_ME" },
-                { "key": "scope", "value": "openid" }
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                },
+                {
+                  "key": "client_id",
+                  "value": "acme-web"
+                },
+                {
+                  "key": "username",
+                  "value": "giorgos"
+                },
+                {
+                  "key": "password",
+                  "value": "REPLACE_ME"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid"
+                }
               ]
             },
             "url": {
               "raw": "{{keycloak_base_url}}/realms/{{realm}}/protocol/openid-connect/token",
-              "host": ["{{keycloak_base_url}}"],
-              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+              "host": [
+                "{{keycloak_base_url}}"
+              ],
+              "path": [
+                "realms",
+                "{{realm}}",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -128,140 +213,292 @@
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
-                "pm.test('Response contains IT department data', function () { pm.expect(pm.response.json()).to.have.property('department', 'IT'); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response contains IT department data', function () { pm.expect(pm.response.json()).to.have.property('department', 'IT'); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{nikos_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/it/data", "host": ["{{api_base_url}}"], "path": ["api", "it", "data"] },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{nikos_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/it/data",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "it",
+                "data"
+              ]
+            },
             "description": "REQ-013: an IT department user must be able to access IT data."
-          }
+          },
+          "response": []
         },
         {
           "name": "IT Data - Giorgos (403) [REQ-013]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Access is denied', function () { pm.response.to.have.status(403); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Access is denied', function () { pm.response.to.have.status(403); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{giorgos_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/it/data", "host": ["{{api_base_url}}"], "path": ["api", "it", "data"] },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{giorgos_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/it/data",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "it",
+                "data"
+              ]
+            },
             "description": "REQ-013: a non-IT department user must be denied."
-          }
+          },
+          "response": []
         },
         {
           "name": "Finance Data - Giorgos (200) [REQ-014]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
-                "pm.test('Response contains Finance department data', function () { pm.expect(pm.response.json()).to.have.property('department', 'Finance'); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response contains Finance department data', function () { pm.expect(pm.response.json()).to.have.property('department', 'Finance'); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{giorgos_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/finance/data", "host": ["{{api_base_url}}"], "path": ["api", "finance", "data"] },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{giorgos_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/finance/data",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "finance",
+                "data"
+              ]
+            },
             "description": "REQ-014: a Finance department user must be able to access Finance data."
-          }
+          },
+          "response": []
         },
         {
           "name": "Finance Data - Nikos (403) [REQ-014]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Access is denied', function () { pm.response.to.have.status(403); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Access is denied', function () { pm.response.to.have.status(403); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{nikos_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/finance/data", "host": ["{{api_base_url}}"], "path": ["api", "finance", "data"] },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{nikos_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/finance/data",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "finance",
+                "data"
+              ]
+            },
             "description": "REQ-014: a non-Finance department user must be denied."
-          }
+          },
+          "response": []
         },
         {
           "name": "Manager Dashboard - Nikos (200) [REQ-015]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
-                "pm.test('Response is the manager dashboard', function () { pm.expect(pm.response.json().message).to.include('manager dashboard'); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is the manager dashboard', function () { pm.expect(pm.response.json().message).to.include('manager dashboard'); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{nikos_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/manager/dashboard", "host": ["{{api_base_url}}"], "path": ["api", "manager", "dashboard"] },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{nikos_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/manager/dashboard",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "manager",
+                "dashboard"
+              ]
+            },
             "description": "REQ-015: a manager, in any department, must be able to access the manager dashboard. Nikos is IT here deliberately - this checks the role dimension, independent of department."
-          }
+          },
+          "response": []
         },
         {
           "name": "Manager Dashboard - Maria (403) [REQ-015]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Access is denied', function () { pm.response.to.have.status(403); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Access is denied', function () { pm.response.to.have.status(403); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{maria_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/manager/dashboard", "host": ["{{api_base_url}}"], "path": ["api", "manager", "dashboard"] },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{maria_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/manager/dashboard",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "manager",
+                "dashboard"
+              ]
+            },
             "description": "REQ-015: a non-manager (employee only) must be denied."
-          }
+          },
+          "response": []
         },
         {
           "name": "IT Admin - Nikos (200) [REQ-016]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
-                "pm.test('Response is IT administration', function () { pm.expect(pm.response.json().message).to.include('IT administration'); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is IT administration', function () { pm.expect(pm.response.json().message).to.include('IT administration'); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{nikos_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/it/admin", "host": ["{{api_base_url}}"], "path": ["api", "it", "admin"] },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{nikos_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/it/admin",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "it",
+                "admin"
+              ]
+            },
             "description": "REQ-016: requires BOTH department-it AND it-admin together. Nikos has both."
-          }
+          },
+          "response": []
         },
         {
           "name": "IT Admin - Giorgos (403) [REQ-016]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Access is denied', function () { pm.response.to.have.status(403); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Access is denied', function () { pm.response.to.have.status(403); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{giorgos_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/it/admin", "host": ["{{api_base_url}}"], "path": ["api", "it", "admin"] },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{giorgos_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/it/admin",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "it",
+                "admin"
+              ]
+            },
             "description": "REQ-016: a user missing department-it, it-admin, or both must be denied."
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -273,51 +510,126 @@
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
-                "pm.test('active is true', function () { pm.expect(pm.response.json().active).to.eql(true); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('active is true', function () { pm.expect(pm.response.json().active).to.eql(true); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{nikos_token}}" }],
-            "url": { "raw": "{{api_base_url}}/api/whoami", "host": ["{{api_base_url}}"], "path": ["api", "whoami"] }
-          }
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{nikos_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/whoami",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "whoami"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Whoami - No Token (401) [REQ-012]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Status is 401', function () { pm.response.to.have.status(401); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{api_base_url}}/api/whoami", "host": ["{{api_base_url}}"], "path": ["api", "whoami"] }
-          }
+            "url": {
+              "raw": "{{api_base_url}}/api/whoami",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "whoami"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Whoami - Invalid Token (401) [REQ-012]",
           "event": [
             {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": [
-                "pm.test('Status is 401', function () { pm.response.to.have.status(401); });"
-              ] }
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer not-a-real-token" }],
-            "url": { "raw": "{{api_base_url}}/api/whoami", "host": ["{{api_base_url}}"], "path": ["api", "whoami"] }
-          }
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer not-a-real-token"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base_url}}/api/whoami",
+              "host": [
+                "{{api_base_url}}"
+              ],
+              "path": [
+                "api",
+                "whoami"
+              ]
+            }
+          },
+          "response": []
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "keycloak_base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "api_base_url",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "realm",
+      "value": "acme"
+    },
+    {
+      "key": "nikos_token",
+      "value": ""
+    },
+    {
+      "key": "maria_token",
+      "value": ""
+    },
+    {
+      "key": "giorgos_token",
+      "value": ""
     }
   ]
 }
