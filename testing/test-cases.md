@@ -272,7 +272,9 @@ subsequent step, not assumed here.
   2. Run `.\scripts\deprovision-users.ps1`.
 - **Expected Result:** Output shows `E008`: "account disabled". In
   Admin Console, `E008`'s "Enabled" toggle is off.
-- **Status:** Not yet executed
+- **Actual Result:** Output showed "account disabled". Confirmed in
+  Admin Console: "Enabled" = false.
+- **Status:** PASS
 
 ---
 
@@ -290,7 +292,9 @@ subsequent step, not assumed here.
 - **Expected Result:** No groups present (`department-sales` removed).
   No business roles present (`employee` removed) — only Keycloak's
   own default roles remain untouched, per the project's model.
-- **Status:** Not yet executed
+- **Actual Result:** Groups empty. Role mapping shows only
+  `default-roles-acme` — `employee` correctly removed.
+- **Status:** PASS
 
 ---
 
@@ -318,7 +322,12 @@ subsequent step, not assumed here.
   small enough (well under the token's lifetime) to rule out natural
   expiry as the explanation — matching the empirical result already
   established in `architecture.md` Section 10.
-- **Status:** Not yet executed
+- **Actual Result:** Step 2 (baseline, before termination):
+  `active: true`, with correct claims (`username: leaver`,
+  `groups: [department-sales]`, `employee` role). Step 4 (same token,
+  after `deprovision-users.ps1`): `active: false`. Elapsed time
+  between termination and recheck was well under a minute.
+- **Status:** PASS
 
 ---
 

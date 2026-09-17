@@ -6,3 +6,4 @@ E004,Eleni,Nikolaou,Sales,Employee,Terminated,eleni@email.com
 E005,Alex,Smith,Sales,Employee,Active,alex@email.com
 E006,Test,User,Finance,Employee,Active,testuser@email.com
 E007,Manager,Manager,IT,Employee,Active,testmanager@email.com
+E008,Leaver,Test,Sales,Employee,Terminated,testleaver@email.com
