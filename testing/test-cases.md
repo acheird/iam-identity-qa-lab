@@ -550,4 +550,8 @@ sequence is: TC-015 (steps 1–2) → TC-013 → TC-014 → TC-015 (step 4)
   perform more than the scripts use (see ADR-0005's documented
   residual risk) — only that no additional, unrelated permission has
   been granted.
-- **Status:** Not yet executed
+- **Actual Result:** Service accounts roles for `acme-provisioner`:
+  `realm-management: manage-users`, `realm-management: view-realm`,
+  plus the Keycloak-native `default-roles-acme` (unrelated to this
+  project's authorization model). No broader permission present.
+- **Status:** PASS
