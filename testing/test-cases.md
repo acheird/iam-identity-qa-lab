@@ -181,7 +181,12 @@ subsequent step, not assumed here.
   1. Run `.\scripts\update-users.ps1` again, with no CSV change.
 - **Expected Result:** Output shows `E006`'s department as "already
   correct" — no remove/add action taken.
-- **Status:** Not yet executed
+- **Actual Result:** `E006` shows "department already correct
+  (department-finance)" — no further action, as expected. (Also
+  confirms BUG-002 is stable/reproducible: `E004` again shows
+  "already correct (department-sales)", the same incorrect state
+  from the previous run — not a one-off.)
+- **Status:** PASS
 
 ---
 
@@ -200,7 +205,10 @@ subsequent step, not assumed here.
 - **Expected Result:** Output shows a role change detected
   (Employee → Manager). Afterward, `E006` holds **both** `employee`
   and `manager`.
-- **Status:** Not yet executed
+- **Actual Result:** Output showed "role change detected - Employee
+  -> Manager", "manager role added". Department (`department-finance`)
+  correctly unaffected.
+- **Status:** PASS
 
 ---
 
@@ -218,7 +226,9 @@ subsequent step, not assumed here.
 - **Expected Result:** Output shows a role change detected
   (Manager → Employee). Afterward, `E006` holds **only** `employee`
   — `manager` is no longer present.
-- **Status:** Not yet executed
+- **Actual Result:** Output showed "role change detected - Manager
+  -> Employee", "manager role removed, employee retained".
+- **Status:** PASS
 
 ---
 
