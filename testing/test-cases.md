@@ -345,7 +345,11 @@ subsequent step, not assumed here.
   account is already disabled and no department group or business
   roles remain. No access is granted or restored as a result of this
   re-run.
-- **Status:** Not yet executed
+- **Actual Result:** `E008` (and `E004`, also still `Terminated`)
+  processed again with no error or exception. Groups empty, no
+  business roles to remove, sessions revoked call completed — no
+  access restored to either.
+- **Status:** PASS
 
 ---
 
