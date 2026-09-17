@@ -40,11 +40,25 @@ along the way.
   - [x] `/api/manager/dashboard` — REQ-015 (role only, independent
         of department)
   - [x] `/api/it/admin` — REQ-016 (group AND role together)
-- [ ] Test strategy
-- [ ] Manual test cases & execution
-- [ ] Defect reports
-- [ ] Regression testing
-- [ ] API testing (Postman collection)
+- [x] Test strategy ([`testing/test-strategy.md`](testing/test-strategy.md))
+- [x] Test scenarios and manual test cases — 27 test cases,
+      fully executed ([`testing/test-cases.md`](testing/test-cases.md))
+- [x] Defect reports — 4 real defects found during execution, all
+      fixed, retested, and closed with regression evidence
+      ([`testing/defects/`](testing/defects/)):
+  - BUG-001 — username collision on duplicate first names (fixed
+    per [ADR-0007](docs/decisions/0007-username-generation-strategy.md))
+  - BUG-002 — Mover restored access for a Terminated employee
+    (security-relevant; fixed by adding status-scoped responsibility
+    to the Mover — see `docs/architecture.md` Section 8)
+  - BUG-003 — role reconciliation reported "already correct" while
+    the `employee` role was actually missing
+  - BUG-004 — Joiner log showed a computed, not actual, username for
+    already-existing employees
+- [x] Regression testing — re-executed after each fix, alongside the
+      initial full run
+- [x] API testing — Postman collection covering authentication and
+      authorization ([`postman/iam-qa-lab.postman_collection.json`](postman/iam-qa-lab.postman_collection.json))
 - [ ] Automated tests (Java + REST Assured/JUnit)
 - [ ] CI (GitHub Actions)
 
