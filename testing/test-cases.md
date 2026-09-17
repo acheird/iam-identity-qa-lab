@@ -504,7 +504,9 @@ sequence is: TC-015 (steps 1–2) → TC-013 → TC-014 → TC-015 (step 4)
   `active: true`, but the core assertion here is that the endpoint
   **accepted** the token, not an independent introspection proof —
   that belongs to TC-015/REQ-012).
-- **Status:** Not yet executed
+- **Actual Result:** `200`, `{"username": "nikos", "groups":
+  ["department-it"], "active": true}`.
+- **Status:** PASS
 
 ---
 
@@ -520,7 +522,9 @@ sequence is: TC-015 (steps 1–2) → TC-013 → TC-014 → TC-015 (step 4)
      header.
   2. Repeat, with `Authorization: Bearer not-a-real-token`.
 - **Expected Result:** Both requests return `401 Unauthorized`.
-- **Status:** Not yet executed
+- **Actual Result:** Both requests returned `401 Unauthorized` — no
+  token and invalid token both correctly rejected.
+- **Status:** PASS
 
 ---
 
