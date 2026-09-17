@@ -61,7 +61,8 @@ subsequent step, not assumed here.
   1. Keycloak Admin Console → Users → maria → tab "Groups".
 - **Expected Result:** Exactly one group is listed: `department-hr`.
   No other department group is present.
-- **Status:** Not yet executed
+- **Actual Result:** `department-hr`, and no other group.
+- **Status:** PASS
 
 ---
 
@@ -74,7 +75,8 @@ subsequent step, not assumed here.
 - **Steps:**
   1. Keycloak Admin Console → Users → giorgos → tab "Role mapping".
 - **Expected Result:** `employee` is present in the assigned roles.
-- **Status:** Not yet executed
+- **Actual Result:** `employee` and `default-roles-acme` present.
+- **Status:** PASS
 
 ---
 
@@ -89,7 +91,11 @@ subsequent step, not assumed here.
   1. Keycloak Admin Console → Users → nikos → tab "Role mapping".
 - **Expected Result:** **Both** `employee` and `manager` are present
   — `manager` is not a replacement for `employee`.
-- **Status:** Not yet executed
+- **Actual Result:** `employee`, `manager` (also `it-admin`, granted
+  manually and unrelated to this specific check), and
+  `default-roles-acme`. Both `employee` and `manager` confirmed
+  present together.
+- **Status:** PASS
 
 ---
 
@@ -111,7 +117,13 @@ subsequent step, not assumed here.
   explicit manual grant (e.g. Nikos's `it-admin`, granted manually
   earlier — not by this script). The scripts must not add or remove
   either role.
-- **Status:** Not yet executed
+- **Actual Result:** Across every Joiner/Mover run executed today
+  (TC-001, 002, 007–012), no employee gained `hr-admin` or `it-admin`
+  as a result of any script execution. Nikos's `it-admin` remained
+  present throughout, but was never touched by any script run — it
+  was granted manually, outside this automation, as REQ-006
+  requires.
+- **Status:** PASS
 
 ---
 
