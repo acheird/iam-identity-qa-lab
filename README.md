@@ -59,7 +59,11 @@ along the way.
       initial full run
 - [x] API testing — Postman collection covering authentication and
       authorization ([`postman/iam-qa-lab.postman_collection.json`](postman/iam-qa-lab.postman_collection.json))
-- [ ] Automated tests (Java + REST Assured/JUnit)
+- [x] Automated tests (Java 21 + JUnit 6 + REST Assured) — 11
+      automated tests covering authorization (REQ-013–016) and
+      session/token validity (REQ-012), the same API-testable
+      subset as the Postman collection
+      ([`automation/`](automation/))
 - [ ] CI (GitHub Actions)
 
 ## Repository structure
