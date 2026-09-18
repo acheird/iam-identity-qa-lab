@@ -167,4 +167,38 @@ public class AuthorizationTests {
                 .then()
                 .statusCode(403);
     }
+
+    // TC-025 / REQ-012: a valid, active token is accepted by
+    // /api/whoami.
+    @Test
+    void whoamiAcceptsValidToken() {
+        given()
+                .header("Authorization", "Bearer " + nikosToken)
+                .when()
+                .get("http://localhost:8081/api/whoami")
+                .then()
+                .statusCode(200)
+                .body("active", equalTo(true));
+    }
+
+    // TC-026 / REQ-012: a request with no token is rejected.
+    @Test
+    void whoamiRejectsMissingToken() {
+        given()
+                .when()
+                .get("http://localhost:8081/api/whoami")
+                .then()
+                .statusCode(401);
+    }
+
+    // TC-026 / REQ-012: a request with an invalid token is rejected.
+    @Test
+    void whoamiRejectsInvalidToken() {
+        given()
+                .header("Authorization", "Bearer not-a-real-token")
+                .when()
+                .get("http://localhost:8081/api/whoami")
+                .then()
+                .statusCode(401);
+    }
 }
