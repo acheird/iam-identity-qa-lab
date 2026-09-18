@@ -143,4 +143,28 @@ public class AuthorizationTests {
                 .then()
                 .statusCode(403);
     }
+
+    // TC-023 / REQ-016: requires BOTH department-it AND it-admin
+    // together. Nikos has both.
+    @Test
+    void itAdminAllowsUserWithBothGroupAndRole() {
+        given()
+                .header("Authorization", "Bearer " + nikosToken)
+                .when()
+                .get("http://localhost:8081/api/it/admin")
+                .then()
+                .statusCode(200);
+    }
+
+    // TC-024 / REQ-016: a user missing department-it, it-admin, or
+    // both must be denied. Giorgos has neither.
+    @Test
+    void itAdminDeniesUserMissingGroupOrRole() {
+        given()
+                .header("Authorization", "Bearer " + giorgosToken)
+                .when()
+                .get("http://localhost:8081/api/it/admin")
+                .then()
+                .statusCode(403);
+    }
 }
