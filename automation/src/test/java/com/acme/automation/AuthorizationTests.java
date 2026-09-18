@@ -76,4 +76,28 @@ public class AuthorizationTests {
                 .then()
                 .statusCode(403);
     }
+
+    // TC-019 / REQ-014: a Finance department user must be able to
+    // access Finance data.
+    @Test
+    void financeDataAllowsFinanceUser() {
+        given()
+                .header("Authorization", "Bearer " + giorgosToken)
+                .when()
+                .get("http://localhost:8081/api/finance/data")
+                .then()
+                .statusCode(200)
+                .body("department", equalTo("Finance"));
+    }
+
+    // TC-020 / REQ-014: a non-Finance department user must be denied.
+    @Test
+    void financeDataDeniesNonFinanceUser() {
+        given()
+                .header("Authorization", "Bearer " + nikosToken)
+                .when()
+                .get("http://localhost:8081/api/finance/data")
+                .then()
+                .statusCode(403);
+    }
 }
