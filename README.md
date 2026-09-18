@@ -1,6 +1,6 @@
 # IAM Identity Lifecycle & QA Lab
 
-A small, self-contained IAM lab (Keycloak + Docker) simulating employee
+A small, local IAM lab (Keycloak + Docker) simulating employee
 identity lifecycle management (Joiner–Mover–Leaver) for a fictional
 company, built to demonstrate the bridge between IAM engineering and
 manual/automated QA.
@@ -16,9 +16,9 @@ along the way.
 - [x] Business scenario ([`docs/business-scenario.md`](docs/business-scenario.md))
 - [x] Requirements baseline — 17 requirements ([`docs/requirements.md`](docs/requirements.md))
 - [x] IAM architecture design — realm, clients, groups, roles, token
-      model ([`docs/architecture.md`](docs/architecture.md), 6 ADRs)
-- [x] Local environment — Docker + Keycloak 26.7.3, reproducible via
-      `keycloak/realm-export.json`
+      model ([`docs/architecture.md`](docs/architecture.md), 7 ADRs)
+- [x] Local environment — Docker + Keycloak 26.7.3, with the realm
+      configuration reproducible via `keycloak/realm-export.json`
 - [x] JML identity lifecycle automation (PowerShell) — REQ-007
       through REQ-012, all implemented and empirically verified:
   - [x] Joiner (`provision-users.ps1`) — identity creation, department
@@ -43,7 +43,7 @@ along the way.
 - [x] Test strategy ([`testing/test-strategy.md`](testing/test-strategy.md))
 - [x] Test scenarios and manual test cases — 27 test cases,
       fully executed ([`testing/test-cases.md`](testing/test-cases.md))
-- [x] Defect reports — 4 real defects found during execution, all
+- [x] Defect reports — 4 defects found during execution, all
       fixed, retested, and closed with regression evidence
       ([`testing/defects/`](testing/defects/)):
   - BUG-001 — username collision on duplicate first names (fixed
@@ -65,6 +65,36 @@ along the way.
       subset as the Postman collection
       ([`automation/`](automation/))
 - [ ] CI (GitHub Actions)
+
+## Local Setup
+
+Reproducing this environment from a fresh clone takes a few steps —
+most are fully automated from committed artifacts, one is
+deliberately manual:
+
+1. `docker compose up -d` — starts Keycloak 26.7.3, with the `acme`
+   realm (groups, roles, clients, mappers) automatically imported
+   from `keycloak/realm-export.json`.
+2. `.\scripts\provision-users.ps1` — creates the test identities
+   from `data/employees.csv` (department + role assignment), via the
+   Joiner automation.
+3. **Set a password for each created identity, manually, via
+   Keycloak Admin Console** (Users → select user → Credentials tab).
+   This step is intentionally not automated — no script or CI step
+   in this repository sets or stores real passwords, since doing so
+   would mean either hardcoding a credential or building a secrets
+   pipeline disproportionate to this lab's scope.
+4. `cd acme-api && mvn spring-boot:run` — starts the protected API on
+   `localhost:8081` (needs `ACME_API_CLIENT_SECRET` set as an
+   environment variable first — see Admin Console → Clients →
+   acme-api → Credentials).
+5. Import `postman/iam-qa-lab.postman_collection.json` into Postman,
+   fill in the `REPLACE_ME` password fields with what you set in
+   step 3, run the Authentication requests first.
+
+Steps 1–2 and 4 are fully reproducible from what's committed here.
+Step 3 is a genuine manual credential-provisioning step, consistent
+with never storing real passwords in the repository.
 
 ## Repository structure
 
