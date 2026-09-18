@@ -14,6 +14,7 @@ public class AuthorizationTests {
     // in the Postman collection.
     private static String nikosToken;
     private static String giorgosToken;
+    private static String mariaToken;
 
     @BeforeAll
     static void loginAsNikos() {
@@ -51,6 +52,23 @@ public class AuthorizationTests {
                 .post("http://localhost:8080/realms/acme/protocol/openid-connect/token");
 
         giorgosToken = response.jsonPath().getString("access_token");
+    }
+
+    @BeforeAll
+    static void loginAsMaria() {
+        String password = System.getenv("MARIA_PASSWORD");
+
+        Response response = given()
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("grant_type", "password")
+                .formParam("client_id", "acme-web")
+                .formParam("username", "maria")
+                .formParam("password", password)
+                .formParam("scope", "openid")
+                .when()
+                .post("http://localhost:8080/realms/acme/protocol/openid-connect/token");
+
+        mariaToken = response.jsonPath().getString("access_token");
     }
 
     // TC-017 / REQ-013: an IT department user must be able to
@@ -97,6 +115,31 @@ public class AuthorizationTests {
                 .header("Authorization", "Bearer " + nikosToken)
                 .when()
                 .get("http://localhost:8081/api/finance/data")
+                .then()
+                .statusCode(403);
+    }
+
+    // TC-021 / REQ-015: a manager, in any department, must be able
+    // to access the manager dashboard. Nikos is IT here deliberately
+    // - this checks the role dimension, independent of department.
+    @Test
+    void managerDashboardAllowsManager() {
+        given()
+                .header("Authorization", "Bearer " + nikosToken)
+                .when()
+                .get("http://localhost:8081/api/manager/dashboard")
+                .then()
+                .statusCode(200);
+    }
+
+    // TC-022 / REQ-015: a non-manager (employee only) must be
+    // denied.
+    @Test
+    void managerDashboardDeniesNonManager() {
+        given()
+                .header("Authorization", "Bearer " + mariaToken)
+                .when()
+                .get("http://localhost:8081/api/manager/dashboard")
                 .then()
                 .statusCode(403);
     }
