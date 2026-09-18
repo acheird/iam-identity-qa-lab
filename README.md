@@ -110,6 +110,14 @@ data/
 └── employees.csv       # HR source feed
 scripts/                # PowerShell JML automation
 acme-api/                # Spring Boot protected resource
+testing/
+├── test-strategy.md
+├── test-scenarios.md
+├── test-cases.md        # 27 test cases, fully executed
+└── defects/              # BUG-001 through BUG-004
+postman/
+└── iam-qa-lab.postman_collection.json
+automation/              # Java + JUnit + REST Assured tests
 docker-compose.yml
 ```
 
