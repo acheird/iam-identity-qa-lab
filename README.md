@@ -66,35 +66,46 @@ along the way.
       ([`automation/`](automation/))
 - [ ] CI (GitHub Actions)
 
+## Prerequisites
+
+Docker, PowerShell 7, JDK 21 and Maven. Tested with Docker 29.7.2,
+PowerShell 7.7.0, Temurin JDK 21.0.12 and Maven 3.9.16 on Windows 11.
+
 ## Local Setup
 
-Reproducing this environment from a fresh clone takes a few steps —
-most are fully automated from committed artifacts, one is
-deliberately manual:
+Most steps are automated from committed artifacts. Four are deliberately
+manual, because the repository never stores real credentials.
 
-1. `docker compose up -d` — starts Keycloak 26.7.3, with the `acme`
-   realm (groups, roles, clients, mappers) automatically imported
-   from `keycloak/realm-export.json`.
-2. `.\scripts\provision-users.ps1` — creates the test identities
-   from `data/employees.csv` (department + role assignment), via the
-   Joiner automation.
-3. **Set a password for each created identity, manually, via
-   Keycloak Admin Console** (Users → select user → Credentials tab).
-   This step is intentionally not automated — no script or CI step
-   in this repository sets or stores real passwords, since doing so
-   would mean either hardcoding a credential or building a secrets
-   pipeline disproportionate to this lab's scope.
-4. `cd acme-api && mvn spring-boot:run` — starts the protected API on
-   `localhost:8081` (needs `ACME_API_CLIENT_SECRET` set as an
-   environment variable first — see Admin Console → Clients →
-   acme-api → Credentials).
-5. Import `postman/iam-qa-lab.postman_collection.json` into Postman,
-   fill in the `REPLACE_ME` password fields with what you set in
-   step 3, run the Authentication requests first.
+1. `Copy-Item .env.example .env` and set `KC_ADMIN_PASSWORD` to any
+   local value.
+2. `docker compose up -d` starts Keycloak 26.7.3 and imports the `acme`
+   realm from `keycloak/realm-export.json` (groups, roles, clients, the
+   `audience-acme-api` scope, the `employeeId` User Profile declaration
+   and the provisioner's role assignments). Client secrets are masked in
+   the export, so Keycloak generates new ones.
+3. **Manual:** Admin Console (http://localhost:8080) -> Clients ->
+   `acme-provisioner` -> Credentials. Copy the secret into `.env` as
+   `KEYCLOAK_CLIENT_SECRET`.
+4. From the repository root: `.\scripts\provision-users.ps1`. It creates
+   the identities from `data/employees.csv`. Usernames follow ADR-0007
+   (`FirstName-EmployeeID`, e.g. `nikos-e002`).
+5. **Manual:** for each created user, set a password in the Admin Console
+   (Users -> user -> Credentials, Temporary: Off).
+6. **Manual:** assign the realm role `it-admin` to `nikos-e002`
+   (Users -> Role mapping). It is never granted automatically (REQ-006),
+   and TC-023 depends on it.
+7. **Manual:** copy the `acme-api` secret (Clients -> `acme-api` ->
+   Credentials) into the `ACME_API_CLIENT_SECRET` environment variable,
+   then `cd acme-api && mvn spring-boot:run` (port 8081).
+8. Postman: import `postman/iam-qa-lab.postman_collection.json` and fill
+   the `REPLACE_ME` passwords. Automated tests: set `NIKOS_PASSWORD`,
+   `GIORGOS_PASSWORD` and `MARIA_PASSWORD`, then
+   `cd automation && mvn test`.
 
-Steps 1–2 and 4 are fully reproducible from what's committed here.
-Step 3 is a genuine manual credential-provisioning step, consistent
-with never storing real passwords in the repository.
+Verified on 27 November 2026: importing `realm-export.json` into a clean
+Keycloak container, and the 11 automated tests against a running
+environment. The full sequence from an empty state has not been re-run end
+to end.
 
 ## Repository structure
 
@@ -105,7 +116,7 @@ docs/
 ├── architecture.md
 └── decisions/          # individual ADRs
 keycloak/
-└── realm-export.json   # reproducible IAM configuration (no users)
+└── realm-export.json   # reproducible IAM configuration (no human users)
 data/
 └── employees.csv       # HR source feed
 scripts/                # PowerShell JML automation
